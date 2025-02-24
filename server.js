@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { OAuth2Client } = require("google-auth-library");
 const bodyParser = require('body-parser')
 const session = require('express-session');
-const { CORS_ORIGINS } = require('./config.js');
+const { CORS_ORIGINS } = require('./CONFIG.js');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
