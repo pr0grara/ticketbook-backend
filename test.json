@@ -1,0 +1,63 @@
+{
+    "tickets": {
+        "HighPriority": [
+            {
+                "_id": "67a357782e44fe505590c7e9",
+                "userId": "6778de261a642d64cc04996a",
+                "goalId": "67a33498c0cd0fba81fddb49",
+                "text": "Create a list of potential video topics related to camping",
+                "status": "pending",
+                "priority": "HIGH",
+                "deadline": "2025-02-05T12:20:08.320Z",
+                "createdAt": "2025-02-05T12:20:08.339Z",
+                "updatedAt": "2025-02-05T12:20:08.339Z",
+                "__v": 0
+            },
+            {
+                "_id": "67a357792e44fe505590c7eb",
+                "userId": "6778de261a642d64cc04996a",
+                "goalId": "67a33498c0cd0fba81fddb49",
+                "text": "Set up a YouTube account and customize the channel's branding",
+                "status": "pending",
+                "priority": "HIGH",
+                "deadline": "2025-02-05T12:20:09.518Z",
+                "createdAt": "2025-02-05T12:20:09.531Z",
+                "updatedAt": "2025-02-05T12:20:09.531Z",
+                "__v": 0
+            }
+        ],
+        "MediumPriority": [
+            {
+                "_id": "67a3573d3e6e81dd1af6c719",
+                "userId": "6778de261a642d64cc04996a",
+                "goalId": "67a33498c0cd0fba81fddb49",
+                "text": "Research successful outdoor YouTube channels for inspiration",
+                "status": "pending",
+                "priority": "MED",
+                "deadline": "2025-02-05T12:19:09.787Z",
+                "createdAt": "2025-02-05T12:19:09.828Z",
+                "updatedAt": "2025-02-05T12:19:09.828Z",
+                "__v": 0
+            },
+            {
+                "_id": "67a357772e44fe505590c7e7",
+                "userId": "6778de261a642d64cc04996a",
+                "goalId": "67a33498c0cd0fba81fddb49",
+                "text": "Purchase or gather necessary video equipment for filming outdoors",
+                "status": "pending",
+                "priority": "MED",
+                "deadline": "2025-02-05T12:20:07.150Z",
+                "createdAt": "2025-02-05T12:20:07.218Z",
+                "updatedAt": "2025-02-05T12:20:07.218Z",
+                "__v": 0
+            }
+        ],
+        "LowPriority": []
+    },
+    "goal": {
+        "title": "Start a youtube channel",
+        "description": "i love camping and would like to start an outdoor youtube channel",
+        "category": "Personal Growth",
+        "priority": 75
+    }
+}

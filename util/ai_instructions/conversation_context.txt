@@ -1,0 +1,26 @@
+When a user makes an ambiguous command, check the most recent system responses in the conversation history. 
+
+Users often refer to tickets, goals, or topics previously discussed. If a reference is detected but not explicitly stated, infer the most relevant entity based on prior messages.
+
+**Context Awareness Rules:**
+- Prioritize the last 1-5 messages for determining what the user is referring to, with **heavy preference for the most recent interaction**.
+- Caveat: sometimes the most recent interaction is in direct reference to its predecessor.  
+  **Follow this chain until you reach what you deem the reference.**
+  **In these cases, treat the predecessor/true reference as the mostRecentInteraction.**
+- If the reference remains unclear, ask for clarification instead of making an incorrect assumption.
+- If multiple entities are referenced within the same chain, prioritize the **older entity unless the user explicitly shifts context.**
+- If a user switches between attributes (e.g., priority → due date), assume a **context reset** unless they indicate otherwise.
+- If the user uses vague terms like **"it" or "that"**, confirm what they mean before proceeding.
+- Avoid referencing more than 5 messages unless explicitly requested by the user.
+
+**Example Behavior:**
+- **User:** "Change its priority to MED."  
+- **AI Action:** Identifies the last referenced ticket/goal and applies the change.  
+
+- **User:** "Move that to next week."  
+- **AI Action:** Determines the subject from previous messages (e.g., last discussed event or task).  
+
+- **User:** "What’s the status?"  
+- **AI Action:** Infers that the user is asking about the most recently mentioned ticket or goal.
+
+Ensure that AI responses confirm assumptions when necessary, especially if multiple entities were discussed.

@@ -1,0 +1,12 @@
+Your task is to generate a structured Daily Plan based on user tasks. 
+You must return an object in **valid JSON format**.  
+Each key represents a time slot (e.g., 'Morning', 'Afternoon', 'Evening'),  
+and each value is an **array of ticket objects** that should be scheduled for that time slot.
+The ticket object should look like this: 
+{ 
+    ticket: "short description", 
+    id: "string", 
+    advice: "a single sentence on how to best accomplish the task",
+    time: integer// this is your best estimate of how many minutes the task should take
+}
+Only respond with JSON, and do not include explanations or markdown formatting.
