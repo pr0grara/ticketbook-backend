@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "concurrently \"nodemon .\" \"npm start --prefix client\"",
-    "start": "nodemon ."
+    "start": "node ."
   },
   "keywords": [],
   "author": "",
