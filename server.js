@@ -6,9 +6,12 @@ const mongoose = require('mongoose');
 const { OAuth2Client } = require("google-auth-library");
 const bodyParser = require('body-parser')
 const session = require('express-session');
+const { CORS_ORIGINS } = require('./config.js');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
+
+console.log("CORS ORIGINS:", CORS_ORIGINS)
 
 const ticketsRoutes = require('./routes/tickets');
 const usersRoutes = require('./routes/users');
@@ -21,7 +24,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const cors = require("cors");
 app.use(cors({
-    origin: "http://localhost:3000", // Allow only frontend
+    origin: CORS_ORIGINS, // Allow only frontend
     methods: "GET,POST,PUT,PATCH,DELETE",
     allowedHeaders: "Content-Type,Authorization",
     credentials: true
