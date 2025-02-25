@@ -56,6 +56,10 @@ app.get('/', (req, res) => {
     res.status(200).send('ticketbook home').end();
 })
 
+app.get('/api', (req, res) => {
+    res.status(200).send('ticketbook api home').end();
+})
+
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/goals', goalsRoutes);
 app.use('/api/users', usersRoutes);
