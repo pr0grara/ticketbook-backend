@@ -7,11 +7,10 @@ const { OAuth2Client } = require("google-auth-library");
 const bodyParser = require('body-parser')
 const session = require('express-session');
 const { CORS_ORIGINS } = require('./CONFIG.js');
+console.log(CORS_ORIGINS)
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-
-console.log("CORS ORIGINS:", CORS_ORIGINS)
 
 const ticketsRoutes = require('./routes/tickets');
 const usersRoutes = require('./routes/users');
@@ -24,7 +23,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const cors = require("cors");
 app.use(cors({
-    origin: CORS_ORIGINS, // Allow only frontend
+    origin: CORS_ORIGINS, // Allow verified hosts
     methods: "GET,POST,PUT,PATCH,DELETE",
     allowedHeaders: "Content-Type,Authorization",
     credentials: true
