@@ -10,7 +10,18 @@ users database, break down the input and respond using a JSON object like this:
     goalId: "string",//if provided
 }
 
-here is the list of actions available to you: provide_answer, provide_advice, create_ticket, modify_ticket.
+OR PERHAPS if the task is broader it should be classified as a Goal. Goals are high level and contain tickets. If the client has 
+provided a selectedGoal in the request chances are create_ticket is the right action:
+{
+    action_type: "create_goal",
+    category: "Career",// options include ["Personal Growth", "Career", "Health & Fitness", "Finance", "Learning"]
+    title: "Increase sales %10 this quarter",//should be a concise title based on user input
+    description: "lorem ipsum",//you can add additional context to the goal here
+    priority: 85,//Integer between 1-100 with 100 being most important
+    deadline: "2025-02-05T09:40:51.841Z",//add this field if time dimension is added by user
+}
+
+here is the list of actions available to you: provide_answer, provide_advice, create_ticket, create_goal, modify_ticket.
 
 If you determine the userMessage to be a question, answer to the best of your abilities. Keep in mind a user may not be asking
 only about their tickets or goals but about anything i.e. what is the weather today? or find me a mechanic in San Francisco, etc...
