@@ -13,6 +13,7 @@
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
     "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.19.1",
     "cors": "^2.8.5",
     "create-react-app": "^5.0.0",
