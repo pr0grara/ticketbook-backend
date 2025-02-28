@@ -66,15 +66,15 @@ router.post('/login', async (req, res) => {
         
         res.cookie("authToken", token, {
             httpOnly: true,
-            secure: process.env.PROD_ENV, //MUST BE CHANGED IN PRODUCTION
-            sameSite: "Lax",
+            secure: process.env.PROD_ENV,
+            sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
         res.cookie("userId", user._id, {
             httpOnly: true,
-            secure: process.env.PROD_ENV, // Set to true in production (requires HTTPS)
-            sameSite: "Strict",
+            secure: process.env.PROD_ENV,
+            sameSite: "None",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         console.log("Set-Cookie Header Sent:", res.getHeaders()["set-cookie"]);
