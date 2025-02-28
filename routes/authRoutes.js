@@ -1,9 +1,14 @@
 require("dotenv").config();
 const express = require("express");
+const bcrypt = require('bcrypt');
 const passport = require("passport");
 const session = require("express-session");
+const jwt = require("jsonwebtoken");
 const { google } = require("googleapis");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const JWT_SECRET = process.env.JWT_SECRET;
+const User = require('../models/User');
+const authenticateUser = require("../util/authUtil");
 
 const router = express.Router();
 console.log(process.env.G_CAL_CLIENT_ID)
@@ -44,21 +49,77 @@ router.get("/google/callback",
     }
 );
 
+// Login
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email })
+        
+        if (!user) return res.status(401).json({ error: "Invalid username or password" });
+        
+        const isMatch = bcrypt.compareSync(password, user.hash)
+        console.log(isMatch)
+        if (!isMatch) return res.status(401).json({ error: "Invalid username or password" });
+
+        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "7d" })
+        console.log("Setting Cookie: ", token);
+        
+        res.cookie("authToken", token, {
+            httpOnly: true,
+            secure: process.env.PROD_ENV, //MUST BE CHANGED IN PRODUCTION
+            sameSite: "Lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
+        res.cookie("userId", user._id, {
+            httpOnly: true,
+            secure: process.env.PROD_ENV, // Set to true in production (requires HTTPS)
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        console.log("Set-Cookie Header Sent:", res.getHeaders()["set-cookie"]);
+        
+        res.status(200).json({ success: true, userId: user._id }).end();
+    } catch {
+        return res.status(500).json({ error: "Internal server error" }).end();
+    };
+})
+
 // Logout
-router.get("/logout", (req, res) => {
-    req.logout(() => {
-        req.session.destroy();
-        res.redirect("/");
-    });
+router.post("/logout", (req, res) => {
+    res.clearCookie("authToken", { httpOnly: true, secure: !!process.env.PROD_ENV });
+    res.status(200).json({ message: "Logged out successfully" });
 });
 
 // Status
 router.get('/status', (req, res) => {
-    if (req.session.tokens) {
-        console.log("Session Data on Status Check:", req.session.tokens); // ✅ Debugging
-        res.json({ loggedIn: true });
-    } else {
-        res.json({ loggedIn: false });
+    const token = req.cookies.authToken; // Read token from cookie
+
+    if (!token) {
+        return res.status(200).json({ loggedIn: false }); // Graceful response
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return res.status(200).json({ loggedIn: true, user: decoded });
+    } catch (error) {
+        return res.status(200).json({ loggedIn: false }); // Expired/Invalid token, still return loggedIn: false
+    }
+});
+
+
+router.get('/auth-check', (req, res) => {
+    const token = req.cookies.authToken; // Extract token from HTTP-only cookie
+
+    if (!token) {
+        return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        res.status(200).json({ user: decoded });
+    } catch (err) {
+        res.status(401).json({ message: "Invalid token" });
     }
 });
 

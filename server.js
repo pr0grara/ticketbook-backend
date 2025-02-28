@@ -7,7 +7,7 @@ const { OAuth2Client } = require("google-auth-library");
 const bodyParser = require('body-parser')
 const session = require('express-session');
 const { CORS_ORIGINS } = require('./CONFIG.js');
-console.log(CORS_ORIGINS)
+const cookieParser = require("cookie-parser");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -22,12 +22,22 @@ const interestsRoute = require('./routes/interests');
 const authRoutes = require('./routes/authRoutes');
 
 const cors = require("cors");
-app.use(cors({
-    origin: CORS_ORIGINS, // Allow verified hosts
+const corsOptions = {
+    origin: CORS_ORIGINS,
     methods: "GET,POST,PUT,PATCH,DELETE",
-    allowedHeaders: "Content-Type,Authorization",
-    credentials: true
-}));
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,  // ✅ Required for cookies
+};
+app.use(cors(corsOptions));
+
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+});
+app.options("*", cors(corsOptions)); // ✅ Allow preflight for all routes
+
 
 mongoose.connect(
     process.env.MONGO_URI,

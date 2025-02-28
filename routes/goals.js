@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const authenticateUser = require('../util/authUtil');
 
 const Goal = require('../models/Goal');
 
@@ -32,7 +33,7 @@ router.post('/new', (req, res) => {
         });
 });
 
-router.post('/foruser', (req, res) => {
+router.post('/foruser', authenticateUser, (req, res) => {
 
     let userId = req.body.userId;
     // console.log(userId);
