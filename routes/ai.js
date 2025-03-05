@@ -17,7 +17,6 @@ router.post("/input", async (req, res) => {
             return res.status(400).json({ message: "Query is required." });
         }
 
-        // ✅ Proper async/await usage
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
@@ -80,8 +79,6 @@ router.post("/goal_breakdown", async (req, res) => {
 router.post('/daily_plan', async (req, res) => {
     try {
         const { tickets, goal } = req.body;
-        console.log(req.body);
-        console.log(tickets, goal)
 
         //Proper async/await usage
         const response = await openai.chat.completions.create({
@@ -101,10 +98,42 @@ router.post('/daily_plan', async (req, res) => {
     }
 });
 
+router.post('/advise-ticket', async (req, res) => {
+    const { userInput, context, requestType } = req.body;
+    // console.log("CONTEXT: ", context)
+    const sytemMessage = `You are an AI assistant for a productivity app. The user 
+    has asked for help with the existing ticket:
+    ${JSON.stringify(context.allTickets[0])}
+    Which belongs to a bigger picture goal:
+    ${JSON.stringify(context.goals[0])}
+    Please provide 1-3 sentences of advice. Your response MUST be in JSON format and
+    should look like this:
+    {
+        action_type: "provide_advice",
+        ticketId: "string",
+        advice: "your advice goes here"
+    }`
+    const messages = [
+        {
+            role: "system",
+            content: sytemMessage
+        }
+    ]
+    // console.log(sytemMessage);
+
+    const aiResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages,
+        response_format: { type: "json_object" }
+    })
+    const cleanedRes = aiResponse.choices[0].message.content;
+    res.status(200).json({response: cleanedRes}).end();
+}) 
+
 router.post('/request', async (req, res) => {
     try {
         const { userInput, context, requestType, aiHistory, conversation } = req.body;        
-        const instructions = createAIInstructions({userInput, context, requestType, aiHistory}); //HUGELY IMOPORTANT FUNCTION
+        const instructions = createAIInstructions({userInput, context, requestType, conversation, aiHistory}); //HUGELY IMOPORTANT FUNCTION
         console.log(JSON.stringify(instructions))
         // console.log()
         const response = await openai.chat.completions.create({

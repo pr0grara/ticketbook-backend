@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+const baseLogicPath = path.join(__dirname, 'ai_instructions', 'ai_base_logic.txt'); // Path to file
+const baseLogic = fs.readFileSync(baseLogicPath, 'utf-8'); // Read as string
+const actionTypesPath = path.join(__dirname, 'ai_instructions', 'action_types.txt'); // Path to file
+const actionTypes = fs.readFileSync(actionTypesPath, 'utf-8'); // Read as string
 const dailyPlanPath = path.join(__dirname, 'ai_instructions', 'daily_plan.txt'); // Path to file
 const dailyPlanInstructions = fs.readFileSync(dailyPlanPath, 'utf-8'); // Read as string
 const userInputPath = path.join(__dirname, 'ai_instructions', 'user_input.txt');
@@ -12,14 +16,14 @@ const ai_input_system_context = "KEEP ANSWERS SHORT. 2 lines MAX. You are an int
 const daily_plan_system_context = "You are an AI productivity assistant for the TicketBook app. Your task is to help users plan their day efficiently by organizing their tasks (tickets) into a structured daily schedule.\n Users may provide a primary goal they are focusing on, a list of tasks (tickets) with priorities, estimated time, deadlines, and dependencies, and optional user preferences such as preferred focus time or break schedules.\n Your job is to analyze these inputs and generate an optimized work schedule that balances urgency, focus time, and efficiency.\n\n Guidelines for Task Assignment:\n 1. Prioritize critical tasks first. High-priority and time-sensitive tasks should come early in the day.\n 2. Batch small tasks together. Group quick wins (tasks under 10 minutes) to avoid context switching.\n 3. Respect dependencies. Ensure prerequisite tasks are completed before dependent tasks.\n 4. Account for mental energy levels. Deep-focus tasks should be scheduled in high-energy periods (e.g., morning).\n 5. Balance workload across the day."
 
 const createAIInstructions =  (request) => {
-    const { userInput, context, requestType, from, aiHistory } = request;
-    console.log("aiHistory", aiHistory)
+    const { userInput, context, requestType, from, conversation, aiHistory } = request;
+    // console.log("context goals", context.goals)
 
     let systemMessage = `You are an AI productivity assistant for TicketBook. Always respond in JSON format. Do not include Markdown formatting or any additional text outside of a valid JSON object.`;
 
     switch (requestType) {
         case "user message":
-            systemMessage = userInputInstructions;
+            systemMessage = baseLogic + "\nHere are all action types:\n" + actionTypes;
             break
         case "prioritize":
             systemMessage += "Analyze the user's tasks and return them ranked from most to least urgent.";
@@ -54,8 +58,8 @@ const createAIInstructions =  (request) => {
             Today is ${Date()}! When a user requests a deadline like 'tomorrow' or 'Friday', always return an explicit date in YYYY-MM-DD format. 
             If time is not specified, default to 12:00PM.
             
-            Current Goal: ${context.goal}
-            Description: ${context.description}
+            Goal(s): 
+            ${context.goals.map(goal => `Title: ${goal.goal}\nDescription: ${goal.description}\ngoalId: ${goal.goalId}`)}
 
             Active Tasks:
             ${existingTickets.map(ticket => `- [${ticket.priority}] ${ticket.task} (${ticket.status}, ${ticket._id})`).join("\n")}

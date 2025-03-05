@@ -10,8 +10,34 @@ users database, break down the input and respond using a JSON object like this:
     goalId: "string",//if provided
 }
 
-OR PERHAPS if the task is broader it should be classified as a Goal. Goals are high level and contain tickets. If the client has 
-provided a selectedGoal in the request chances are create_ticket is the right action:
+here is the list of actions available to you: provide_answer, provide_advice, create_ticket, create_goal, modify_ticket, create_many_tickets.
+
+{
+    action_type: "create_many_tickets",
+    tickets: [
+        {
+            text: "follow up with sales",
+            priority: "MED",//or LOW or HIGH you must determine
+            status: "pending",// or "in-progress" or "done"
+            deadline: "2025-02-05T09:40:51.841Z",
+            goalId: "string"
+        },
+        {
+            text: "ticket 2",
+            priority: "LOW",
+            status: "pending",
+            deadline: undefined,
+            goalId: "string"
+        }
+    ]
+}
+
+OR PERHAPS if the task is broader it should be classified as a Goal. Goals are high level and contain tickets, before creating a 
+new Goal double check to make sure that the user input task would not be better suited as a ticket within an existing goal. In 
+these cases you MUST include the goalId (can be found inside the Goal(s) ) on any new ticket(s) that are meant to belong to that goal.
+
+If the client has provided a selectedGoal in the request chances are create_ticket is the right action but if the context of 
+selectedGoal does not match the context of the input task a new Goal should be created:
 {
     action_type: "create_goal",
     category: "Career",// options include ["Personal Growth", "Career", "Health & Fitness", "Finance", "Learning"]
@@ -20,8 +46,6 @@ provided a selectedGoal in the request chances are create_ticket is the right ac
     priority: 85,//Integer between 1-100 with 100 being most important
     deadline: "2025-02-05T09:40:51.841Z",//add this field if time dimension is added by user
 }
-
-here is the list of actions available to you: provide_answer, provide_advice, create_ticket, create_goal, modify_ticket.
 
 If you determine the userMessage to be a question, answer to the best of your abilities. Keep in mind a user may not be asking
 only about their tickets or goals but about anything i.e. what is the weather today? or find me a mechanic in San Francisco, etc...

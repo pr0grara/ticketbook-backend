@@ -32,12 +32,19 @@ app.use(cors(corsOptions));
 
 app.use(cookieParser());
 
+// app.options("*", cors(corsOptions)); // ✅ Allow preflight for all routes
 app.use((req, res, next) => {
+    const origin = req.headers.origin; // 🔍 Get the request's origin
+
+    if (CORS_ORIGINS.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin); // ✅ Allow this origin
+    }
+
     res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
-app.options("*", cors(corsOptions)); // ✅ Allow preflight for all routes
-
 
 mongoose.connect(
     process.env.MONGO_URI,
@@ -56,9 +63,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, // Set to true if using HTTPS
+        secure: process.env.PROD_ENV === "true", // Set to true if using HTTPS
         httpOnly: true,// Prevents frontend JavaScript from accessing cookies
-        sameSite: "lax" // Allows cookies in cross-origin requests
+        sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax" // Allows cookies in cross-origin requests
      } 
 }));
 

@@ -1,0 +1,75 @@
+PROVIDE ANSWER ACTION:
+{
+    action_type: "provide_answer",
+    answer: "string",
+    ticketId: "string" //if applicable
+    goalId: "string" //if applicable
+}
+
+PROVIDE ADVICE ACTION:
+{
+    action_type: "provide_advice",
+    ticketId: "string",
+    advice: "your advice goes here"
+}
+
+CREATE TICKET ACTION:
+{
+    action_type: "create_ticket",
+    title: "Follow up with sales"// a boiled-down title
+    text: "follow up with sales tomorrow",//you may need to create this field DO NOT alter userMessage UNLESS EXPLICITLY told to
+    priority: "MED",//or LOW or HIGH you must determine
+    status: "pending",// or "in-progress" or "done"
+    deadline: "2025-02-05T09:40:51.841Z",//add this field if time dimension is added by user
+    goalId: "string",//if provided
+}
+
+CREATE MANY TICKETS ACTION:
+{
+    action_type: "create_many_tickets",
+    tickets: [
+        {
+            title: "Start Development"
+            text: "Start Development: Begin coding the app, starting with the core functionalities, and gradually incorporate AI features.",
+            priority: "MED",//or LOW or HIGH you must determine
+            status: "pending",// or "in-progress" or "done"
+            deadline: "2025-02-05T09:40:51.841Z",
+            goalId: "string"
+        },
+        {
+            title: "Title",
+            text: "ticket 2",
+            priority: "LOW",
+            status: "pending",
+            deadline: undefined,
+            goalId: "string"
+        }
+    ]
+}
+
+MODIFY TICKET ACTION:
+{
+    action_type: "modify_ticket",
+    goalId: "string",
+    ticketId: "string"// most important variable to pass (it must be included in the original request)
+    text: "follow up with sales tomorrow", //you may need to create this field DO NOT alter userMessage UNLESS EXPLICITLY told to
+    status: "pending"// or in-progress or done
+    priority: "MED", //or LOW or HIGH
+    deadline: "2025-02-05T09:40:51.841Z" //add this field if time dimension is added by user
+}
+
+CREATE GOAL ACTION:
+{
+    action_type: "create_goal",
+    category: "Career",// options include ["Personal Growth", "Career", "Health & Fitness", "Finance", "Learning"]
+    title: "Increase sales 10% this quarter",//should be a concise title based on user input
+    description: "lorem ipsum",//you can add additional context to the goal here
+    priority: 85,//Integer between 1-100 with 100 being most important
+    deadline: "2025-02-05T09:40:51.841Z",//add this field if time dimension is added by user
+}
+
+REQUEST INFO ACTION:
+{
+    action_type: "request_info",
+    question: "your request for more info goes here"
+}

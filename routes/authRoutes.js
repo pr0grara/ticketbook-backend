@@ -11,7 +11,7 @@ const User = require('../models/User');
 const authenticateUser = require("../util/authUtil");
 
 const router = express.Router();
-console.log(process.env.G_CAL_CLIENT_ID)
+// console.log(process.env.G_CAL_CLIENT_ID)
 // OAuth Client
 const oAuth2Client = new google.auth.OAuth2(
     process.env.G_CAL_CLIENT_ID,
@@ -58,25 +58,18 @@ router.post('/login', async (req, res) => {
         if (!user) return res.status(401).json({ error: "Invalid username or password" });
         
         const isMatch = bcrypt.compareSync(password, user.hash)
-        console.log(isMatch)
         if (!isMatch) return res.status(401).json({ error: "Invalid username or password" });
 
         const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "7d" })
-        console.log("Setting Cookie: ", token);
+        // console.log("Setting Cookie: ", token);
         
         res.cookie("authToken", token, {
             httpOnly: true,
-            secure: process.env.PROD_ENV,
-            sameSite: "None",
+            secure: process.env.PROD_ENV === "true",
+            sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        res.cookie("userId", user._id, {
-            httpOnly: true,
-            secure: process.env.PROD_ENV,
-            sameSite: "None",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
         console.log("Set-Cookie Header Sent:", res.getHeaders()["set-cookie"]);
         
         res.status(200).json({ success: true, userId: user._id }).end();
@@ -87,7 +80,7 @@ router.post('/login', async (req, res) => {
 
 // Logout
 router.post("/logout", (req, res) => {
-    res.clearCookie("authToken", { httpOnly: true, secure: !!process.env.PROD_ENV });
+    res.clearCookie("authToken", { httpOnly: true, secure: !!process.env.PROD_ENV === "true" });
     res.status(200).json({ message: "Logged out successfully" });
 });
 

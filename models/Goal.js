@@ -8,6 +8,7 @@ const GoalSchema = new mongoose.Schema({
     description: { type: String },
     status: { type: String, enum: ["active", "completed"], default: "active" },
     progress: { type: Number, default: 0 }, // Percentage completion
+    shoppingList: { type: Array },
     parentGoal: { type: mongoose.Schema.Types.ObjectId, ref: "Goal", default: null }, // Parent goal (if nested)
     subGoals: [{ type: mongoose.Schema.Types.ObjectId, ref: "Goal" }], // Child goals
     tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }], // Related tasks

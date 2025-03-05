@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const OpenAI = require('openai');
 const Ticket = require('../models/Ticket'); 
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
@@ -36,12 +36,12 @@ router.get('/byUser/:userId', async (req, res) => {
 });
 
 router.post('/new', (req, res) => {
-    let { userId, goalId, text, status, priority, priorityWeight, depends_on, deadline } = req.body;
-    console.log(deadline)
+    let { title, userId, goalId, text, status, priority, priorityWeight, depends_on, deadline } = req.body;
 
     let newTicket = new Ticket({
         userId,
         goalId,
+        title,
         text,
         status,
         priority,
@@ -62,10 +62,8 @@ router.patch("/:ticketId/updateStatus", async (req, res) => {
     try {
         const { ticketId } = req.params;
         const { status } = req.body;
-        console.log(ticketId, status)
 
         if (!["pending", "in-progress", "done"].includes(status)) {
-            console.log('failed here')
             return res.status(400).json({ message: "Invalid status" });
         }
 
@@ -86,10 +84,8 @@ router.patch("/:ticketId/updatePriority", async (req, res) => {
     try {
         const { ticketId } = req.params;
         const { priority } = req.body;
-        console.log(ticketId, priority)
 
         if (!["pending", "in-progress", "done"].includes(priority)) {
-            console.log('failed here')
             return res.status(400).json({ message: "Invalid priority" });
         }
 
@@ -106,13 +102,14 @@ router.patch("/:ticketId/updatePriority", async (req, res) => {
     }
 });
 
-router.patch("/:ticketId/update", async (req, res) => {
+router.patch("/update/:ticketId", async (req, res) => {
     try {
         const { ticketId } = req.params;
-        const { text, status, priority, deadline } = req.body.ticket;
+        const { text, status, priority, deadline, title, notes } = req.body.ticket;
         // console.log(ticketId, JSON.stringify(req.body))
-
-        const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, { text, status, priority, deadline }, { new: true });
+        const updateFields = {text, status, priority, deadline, title, notes}
+        console.log(ticketId, updateFields);
+        const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true });
 
         if (!updatedTicket) {
             return res.status(404).json({ message: "Ticket not found or improperly updated" });
@@ -131,6 +128,59 @@ router.delete('/delete/:ticketId', (req, res) => {
     Ticket.findOneAndDelete({ _id: ticketId })
         .then(data => res.status(200).send('deleted').end())
         .catch(err => res.status(400).send(`error deleting: ${err}`).end());
+});
+
+router.patch('/add-title', async (req, res) => {
+    const tickets = await Ticket.find();
+    // console.log(tickets);
+    let ticketsObj = {};
+    tickets.forEach(ticket => {
+        ticketsObj[ticket._id] = {
+            title: "",
+            text: ticket.text
+        };
+    });
+
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    
+    const openai = new OpenAI({
+        apiKey: OPENAI_API_KEY,
+    });
+
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "system",
+                content: `Your job is to analyze a tickets Object and return a 
+                copy with the title key populated. Analyze the text field and 
+                create a shortened title. Note that some ticket texts are already 
+                short enough to be read by a human in short hand; in these cases 
+                simply populate the title field with the existing text.
+
+                YOU MUST RETURN A JSON OBJECT!!!
+
+                Here is the tickets object to modify:
+                ${JSON.stringify(ticketsObj)}
+                `
+            }
+        ],
+        response_format: { type: "json_object" }
+    });
+
+    let titledTickets = JSON.parse(response.choices[0].message.content);
+    let ticketIDs = Object.keys(titledTickets);
+
+    ticketIDs.forEach(id => {
+        Ticket.findById(id)
+            .then(ticket => {
+                ticket.title = titledTickets[id].title;
+                ticket.save()
+            })
+            .catch(e => console.log(e))
+    });
+    
+    res.status(200).json(JSON.parse(response.choices[0].message.content)).end();
 })
 
 module.exports = router;
