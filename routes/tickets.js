@@ -36,7 +36,7 @@ router.get('/byUser/:userId', async (req, res) => {
 });
 
 router.post('/new', (req, res) => {
-    let { title, userId, goalId, text, status, priority, priorityWeight, depends_on, deadline } = req.body;
+    let { title, userId, goalId, text, status, priority, priorityWeight, depends_on, deadline, checklist, notes } = req.body;
 
     let newTicket = new Ticket({
         userId,
@@ -46,6 +46,8 @@ router.post('/new', (req, res) => {
         status,
         priority,
         priorityWeight,
+        checklist,
+        notes,
         depends_on,
         deadline: deadline || oneYearFromNow,
     })
@@ -105,9 +107,9 @@ router.patch("/:ticketId/updatePriority", async (req, res) => {
 router.patch("/update/:ticketId", async (req, res) => {
     try {
         const { ticketId } = req.params;
-        const { text, status, priority, deadline, title, notes } = req.body.ticket;
+        const { text, status, priority, deadline, title, notes, checklist } = req.body.ticket;
         // console.log(ticketId, JSON.stringify(req.body))
-        const updateFields = {text, status, priority, deadline, title, notes}
+        const updateFields = {text, status, priority, deadline, title, notes, checklist}
         console.log(ticketId, updateFields);
         const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true });
 

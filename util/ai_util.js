@@ -53,19 +53,19 @@ const createAIInstructions =  (request) => {
             content: `
             ${systemMessage}
             
+            Goal(s): 
+            ${context.goals.map(goal => `Title: ${goal.goal}\nDescription: ${goal.description}\ngoalId: ${goal.goalId}`)}
+
+            Active Tickets:
+            ${existingTickets.map(ticket => `- [${ticket.priority}] ${ticket.task} (${ticket.status}, ${ticket._id})`).join("\n")}
+
+            Completed Tickets:
+            ${completedTickets ? completedTickets.map(ticket => `- ✅ ${ticket.task}`).join("\n") : "None"}
+
             The user message was taken from a ${from === "from_calendar" ? "A CALENDAR WIDGET" : "A GOALS WIDGET"}.
             
             Today is ${Date()}! When a user requests a deadline like 'tomorrow' or 'Friday', always return an explicit date in YYYY-MM-DD format. 
             If time is not specified, default to 12:00PM.
-            
-            Goal(s): 
-            ${context.goals.map(goal => `Title: ${goal.goal}\nDescription: ${goal.description}\ngoalId: ${goal.goalId}`)}
-
-            Active Tasks:
-            ${existingTickets.map(ticket => `- [${ticket.priority}] ${ticket.task} (${ticket.status}, ${ticket._id})`).join("\n")}
-
-            Completed Tasks:
-            ${completedTickets ? completedTickets.map(ticket => `- ✅ ${ticket.task}`).join("\n") : "None"}
         `
         },
         ...aiHistory.interactions.map(entry => [

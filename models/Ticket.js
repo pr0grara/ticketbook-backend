@@ -6,6 +6,7 @@ const TicketSchema = new mongoose.Schema({
     title: { type: String, required: true },
     text: { type: String, required: true },
     notes: { type: Array },
+    checklist: { type: Array },
     status: { type: String, enum: ["pending", "in-progress", "done"], default: "pending" },
     priority: { type: String, enum: ["LOW", "MED", "HIGH"], default: "MED" },
     priorityWeight: { type: Number, min: 1, max: 100 },

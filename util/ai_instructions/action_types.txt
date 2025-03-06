@@ -13,12 +13,16 @@ PROVIDE ADVICE ACTION:
     advice: "your advice goes here"
 }
 
-CREATE TICKET ACTION:
+For this next action here was the sample user input: 
+"follow up with sales by fri, finalize deliverables and schedule call with Brad"
+CREATE TICKET ACTION: 
 {
     action_type: "create_ticket",
     title: "Follow up with sales"// a boiled-down title
-    text: "follow up with sales tomorrow",//you may need to create this field DO NOT alter userMessage UNLESS EXPLICITLY told to
+    text: "Follow up with sales, finalize deliverables for sales team and schedule call with Brad by Friday",
     priority: "MED",//or LOW or HIGH you must determine
+    checklist: [{item: "Finalize deliverables", status: "unchecked"}, {item: "Schedule call with Brad for Friday", status: "unchecked"}],
+    notes: ["lorem", "ipmsum"],//if it makes sense based on user input you can add seperate notes here
     status: "pending",// or "in-progress" or "done"
     deadline: "2025-02-05T09:40:51.841Z",//add this field if time dimension is added by user
     goalId: "string",//if provided

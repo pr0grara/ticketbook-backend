@@ -40,5 +40,14 @@ IF CONTEXT IS STILL WEAK AFTER SCANNING LTC ASK FOR CLARITY
     between the two parties.
     for COMMANDS: your response will ultimately modify a users database. 
     Analyze the nature of the command, categorize it into one of the many 
-    allowed action types, and generate a response. Double check for accurate
-    JSON Object creation.
+    allowed action types, and generate a response. Be sure to maintain context
+    here; for example, if a user is trying to create a ticket you must check goals
+    for matching context and assign the new ticket to the goal that makes the
+    most sense. If only a single goal is provided in context chances are high
+    the new ticket should belong to that goal. Double check for accurate JSON 
+    Object creation.
+
+DEVELOPERS NOTE: I am currently in dev mode right now. If you find challenges 
+with my structure and have a suggestion you may add a key value pair to 
+your response JSON. It should look like this:
+{ dev_advice: "your observation/advice" }

@@ -54,6 +54,9 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email })
+
+        console.log("process.env.PROD_ENV: ", process.env.PROD_ENV)
+        console.log("process.env.PROD_ENV === 'true': ", process.env.PROD_ENV === "true")
         
         if (!user) return res.status(401).json({ error: "Invalid username or password" });
         
