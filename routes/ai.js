@@ -2,7 +2,8 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 const OpenAI = require('openai');
-const {ai_input_system_context, daily_plan_system_context, createAIInstructions} = require('../util/ai_util');
+const {ai_input_system_context, daily_plan_system_context, createAIInstructions, ai_preprocessor} = require('../util/ai_util');
+const preprocessor = require("../processors/preprocessor");
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -132,42 +133,32 @@ router.post('/advise-ticket', async (req, res) => {
 
 router.post('/request', async (req, res) => {
     try {
-        const { userInput, context, requestType, aiHistory, conversation } = req.body;        
-        const instructions = createAIInstructions({userInput, context, requestType, conversation, aiHistory}); //HUGELY IMOPORTANT FUNCTION
-        console.log(JSON.stringify(instructions))
-        // console.log()
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: instructions,
-            response_format: { type: "json_object" }
-        });
+        const processedResponse = await preprocessor(req);
 
-        let result;
-        switch (requestType) {
-            case "user message":
-                result = { response: response.choices[0].message.content };
-                break;
-            case "prioritize":
-                result = { response: response.choices[0].message.content };
-                break;
-            case "generate_tickets":
-                result = { suggestions: JSON.parse(response.choices[0].message.content) };
-                break;
-            case "consolidate":
-                result = { mergedTickets: JSON.parse(response.choices[0].message.content) };
-                break;
-            case "daily plan":
-                result = { response: response.choices[0].message.content };
-                break
-            default:
-                result = { response: "Unknown request type" };
+        console.log("🔍 Preprocessor Output:", processedResponse);
+
+        // ✅ Immediately return if preprocessor completed the task
+        if (processedResponse.status) {
+            return res.status(200).json({ response: processedResponse }).end();
         }
-        console.log(result);
-        res.json(result);
+
+        // ✅ Handle unexpected cases where no valid action is determined
+        if (!processedResponse.action_type) {
+            return res.status(200).json({
+                response: {
+                    action_type: "provide_advice",
+                    advice: "I'm not sure how to process this request."
+                }
+            }).end();
+        }
+
+        console.error("⚠️ Unexpected flow reached:", processedResponse);
+        return res.status(500).json({ error: "Unexpected error in request routing" });
+
     } catch (error) {
-        console.error("AI API Error:", error);
-        res.status(500).json({ error: "AI service is unavailable" });
+        console.error("❌ Request Processing Error:", error);
+        return res.status(500).json({ error: "Internal server error" });
     }
-})
+});
 
 module.exports = router;

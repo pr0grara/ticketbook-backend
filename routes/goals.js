@@ -3,6 +3,7 @@ const router = express.Router();
 const authenticateUser = require('../util/authUtil');
 
 const Goal = require('../models/Goal');
+const Ticket = require('../models/Ticket');
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
 
@@ -49,12 +50,30 @@ router.post('/foruser', authenticateUser, (req, res) => {
         .catch(err => res.status(404).send(err).end())
 })
 
-router.delete('/delete/:goalId', (req, res) => {
-    let { goalId } = req.params;
+router.delete('/delete/:goalId', async (req, res) => {
+    try {
+        const { goalId } = req.params;
 
-    Goal.findOneAndDelete({ _id: goalId })
-        .then(data => res.status(200).send('deleted').end())
-        .catch(err => res.status(400).send(`error deleting: ${err}`).end());
+        // Step 1: Capture IDs and delete all tickets associated with the goal
+        const deletedTickets = await Ticket.find({ goalId }).select('_id');
+        await Ticket.deleteMany({ goalId });
+
+        // Step 2: Delete the goal itself
+        const deletedGoal = await Goal.findByIdAndDelete(goalId);
+
+        if (!deletedGoal) {
+            return res.status(404).send('Goal not found').end();
+        }
+
+        res.status(200).send({
+            status: "deleted",
+            message: 'Goal and associated tickets deleted successfully',
+            deletedGoalId: goalId,
+            deletedTicketIds: deletedTickets.map(ticket => ticket._id), }).end();
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(`Error deleting goal and tickets: ${err.message}`).end();
+    }
 });
 
 module.exports = router;

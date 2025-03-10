@@ -15,6 +15,10 @@ here is the list of actions available to you:
     create_ticket,
     create_many_tickets,
     modify_ticket,
+    add_checklist,
+    modify_checklist,
+    add_note,
+    modify_notes,
     create_goal,
     request_info
 ]
