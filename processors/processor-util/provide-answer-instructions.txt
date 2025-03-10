@@ -29,7 +29,7 @@ If clarification is required:
     "category": "question",
     "action_type": "provide_answer",
     "clarification_needed": true,
-    "message": "Your question is unclear. Can you provide more details?"
+    "answer": "Your question is unclear. Can you provide more details?"
 }
 ```
 

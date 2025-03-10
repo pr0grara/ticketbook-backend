@@ -31,7 +31,7 @@ async function provideAnswerProcessor(action, reqBody) {
             model: "gpt-4o",
             messages: [
                 { role: "system", content: `userId: ${userId}\n` + systemMessage + dateTimeNow },
-                { role: "user", content: userMessage }
+                { role: "user", content: userInput }
             ],
             response_format: { type: "json_object" }
         });
