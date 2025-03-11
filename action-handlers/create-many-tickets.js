@@ -60,7 +60,7 @@ async function createManyTicketsProcessor(action, reqBody) {
         return { action_type: "create_many_tickets", status: "completed", message: "New tickets created.", newTickets: ticketReceipts };
     } catch (error) {
         console.error("[Create Ticket Processor Error]:", error.message);
-        return { status: "error", message: error.message };
+        return { status: "fatal_error", message: error.message };
     }
 }
 

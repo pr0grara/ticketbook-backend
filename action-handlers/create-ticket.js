@@ -16,11 +16,13 @@ async function createTicket(ticket) {
 
         const newTicket = new Ticket({ userId, goalId, ...ticketData });
 
-        console.log("🟢 Creating Ticket:", JSON.stringify(newTicket, null, 2));
+        // console.log("🟢 Creating Ticket:", JSON.stringify(newTicket, null, 2));
+        console.log("🟢 Creating Ticket");
 
         const savedTicket = await newTicket.save();
 
-        console.log("✅ Ticket Saved:", JSON.stringify(savedTicket, null, 2));
+        // console.log("✅ Ticket Saved:", JSON.stringify(savedTicket, null, 2));
+        console.log("✅ Ticket Saved");
 
         return { action_type: "create_ticket", status: "completed", message: "New ticket created.", newTicket: savedTicket };
 

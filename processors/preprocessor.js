@@ -13,12 +13,13 @@ const {
 
 const { openai } = require("../util/ai_util");
 
-const preprocessorContextPath = path.join(__dirname, "../util/ai_instructions/preprocessor.txt");
+// const preprocessorContextPath = path.join(__dirname, "../util/ai_instructions/preprocessor.txt");
+const preprocessorContextPath = path.join(__dirname, "./processor-util/preprocessorTest.txt");
 const preprocessorContext = fs.readFileSync(preprocessorContextPath, "utf-8"); // Read as string
 
 const preprocessor = async (request) => {
     try {
-        const { userInput, context } = request.body;
+        const { userInput, context } = request.body; //Available variables: aiHistory
 
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
@@ -37,7 +38,8 @@ const preprocessor = async (request) => {
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
-        console.log(action)
+        
+        console.log("PREPROCESSOR GENERATED ACTION: ", action)
 
         switch (action.action_type) {
             case "modify_ticket":
@@ -58,6 +60,10 @@ const preprocessor = async (request) => {
                 return await provideAnswerProcessor(action, request.body);
             case "provide_advice":
                 return await provideAdviceProcessor(action, request.body);
+            case "error":
+                return { action_type: "error", status: "error", message: `error in PREprocessor || Ara said: congrats you were either being cute or you broke the ground || You said: ${userInput} || The machine said: ${action.message}` };
+            case "fatal error":
+                return { action_type: "error", status: "error", message: action.message }
             default:
                 throw new Error(`Unknown action_type: ${action.action_type}`);
         }

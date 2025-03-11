@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 const OpenAI = require('openai');
-const {ai_input_system_context, daily_plan_system_context, createAIInstructions, ai_preprocessor} = require('../util/ai_util');
+const {ai_input_system_context, daily_plan_system_context, createAIInstructions} = require('../util/ai_util');
 const preprocessor = require("../processors/preprocessor");
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
