@@ -12,7 +12,8 @@ const GoalSchema = new mongoose.Schema({
     parentGoal: { type: mongoose.Schema.Types.ObjectId, ref: "Goal", default: null }, // Parent goal (if nested)
     subGoals: [{ type: mongoose.Schema.Types.ObjectId, ref: "Goal" }], default: [], // Child goals
     tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ticket" }], // Related tasks
-    deadline: { type: Date }
+    deadline: { type: Date },
+    isBucket: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const Goal = mongoose.model("Goal", GoalSchema);
