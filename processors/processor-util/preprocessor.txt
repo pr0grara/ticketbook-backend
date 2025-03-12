@@ -30,6 +30,7 @@ Your primary job is not to generate full responses but to classify and direct th
   "tickets": user is likely requesting modification or creation of many tickets
   "goal": user is likely requesting a new goal to be created
   "bucket": user is likely requesting a new goal to be created. A bucket is a type of Goal within the goal schema.
+  "new bucket [some distinct variable]" ALWAYS route to create_goal
 
 ### **HOW TO DETERMINE `create_ticket` VS `create_goal`**
 
