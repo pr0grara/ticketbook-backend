@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const TicketSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    goalId: { type: mongoose.Schema.Types.ObjectId, ref: "Goal", default: null },  // ✅ Can be standalone
+    goalId: { type: mongoose.Schema.Types.ObjectId, ref: "Goal", default: null },  //Can be standalone
     title: { type: String, required: true },
     text: { type: String, required: true },
     notes: { type: Array },

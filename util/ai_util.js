@@ -90,4 +90,4 @@ const createAIInstructions =  (request) => {
 
 };
 
-module.exports = {openai, ai_input_system_context, daily_plan_system_context, createAIInstructions};
+module.exports = { openai, ai_input_system_context, daily_plan_system_context, createAIInstructions, dailyPlanInstructions };

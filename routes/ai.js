@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 const OpenAI = require('openai');
-const {ai_input_system_context, daily_plan_system_context, createAIInstructions} = require('../util/ai_util');
+const {ai_input_system_context, dailyPlanInstructions, createAIInstructions} = require('../util/ai_util');
 const preprocessor = require("../processors/preprocessor");
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -77,19 +77,23 @@ router.post("/goal_breakdown", async (req, res) => {
     }
 });
 
-router.post('/daily_plan', async (req, res) => {
+router.post('/daily-plan', async (req, res) => {
     try {
-        const { tickets, goal } = req.body;
+        console.log(dailyPlanInstructions)
+        const { allTickets, goals } = req.body.context;
 
         //Proper async/await usage
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: daily_plan_system_context },
-                { role: "user", content: `The goal is ${goal}` + `and the tickets are ${JSON.stringify(tickets)}` }
+                { role: "system", content: dailyPlanInstructions },
+                { role: "user", content: `My goal(s) are ${JSON.stringify(goals, null, 2)}` + `and my tickets are ${JSON.stringify(allTickets, null, 2)}` },
             ],
+            response_format: { type: "json_object" },
             temperature: 0.7,
         });
+
+        console.log(response.choices[0])
 
         res.json({ response: response.choices[0].message.content });
 

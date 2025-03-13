@@ -36,7 +36,7 @@ or "When was my dentist appointment?" → Provide Answer { answer: "Your dentist
 ---
 
 ### KEYWORDS:
-## When found these keywords will strongly influence your decision making:
+## When found these keywords should strongly influence your decision making:
   "ticket": user is likely requesting modification or creation of a ticket
   "tickets": user is likely requesting modification or creation of many tickets
   "goal": user is likely requesting a new goal to be created
