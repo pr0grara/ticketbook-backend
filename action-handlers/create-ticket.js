@@ -15,7 +15,8 @@ async function createTicket(ticket) {
         goalId = goalId ? new mongoose.Types.ObjectId(goalId) : null;
 
         const newTicket = new Ticket({ userId, goalId, ...ticketData });
-
+        if (newTicket.notes?.length === 0) newTicket.notes = [""];
+        if (newTicket.checklist?.length === 0) newTicket.checklist = [{ item: "", status: "unchecked" }, { item: "", status: "unchecked" }];
         // console.log("🟢 Creating Ticket:", JSON.stringify(newTicket, null, 2));
         console.log("🟢 Creating Ticket");
 

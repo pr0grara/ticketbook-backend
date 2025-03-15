@@ -5,7 +5,7 @@ const TicketSchema = new mongoose.Schema({
     goalId: { type: mongoose.Schema.Types.ObjectId, ref: "Goal", default: null },  //Can be standalone
     title: { type: String, required: true },
     text: { type: String, required: true },
-    notes: { type: Array },
+    notes: { type: Array, default: [" "] },
     checklist: { type: Array },
     status: { type: String, enum: ["pending", "in-progress", "done"], default: "pending" },
     priority: { type: String, enum: ["LOW", "MED", "HIGH"], default: "MED" },

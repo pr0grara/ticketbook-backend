@@ -21,6 +21,8 @@ const aiRoutes = require('./routes/ai');
 const interestsRoute = require('./routes/interests');
 const authRoutes = require('./routes/authRoutes');
 
+const { scrapeLinkedIn } = require('./pupeteer.js')
+
 const cors = require("cors");
 const corsOptions = {
     origin: CORS_ORIGINS,
@@ -75,6 +77,12 @@ app.get('/', (req, res) => {
 
 app.get('/api', (req, res) => {
     res.status(200).send('ticketbook api home').end();
+})
+
+app.get('/scrape', async (req, res) => {
+    const rawData = await scrapeLinkedIn();
+    console.log(rawData);
+    res.status(200).json(rawData).end();
 })
 
 app.use('/api/tickets', ticketsRoutes);
