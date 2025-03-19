@@ -11,7 +11,8 @@ const TicketSchema = new mongoose.Schema({
     priority: { type: String, enum: ["LOW", "MED", "HIGH"], default: "MED" },
     priorityWeight: { type: Number, min: 1, max: 100 },
     depends_on: { type: String },
-    deadline: { type: Date }
+    deadline: { type: Date },
+    order: { type: Number }
 }, { timestamps: true });
 
 // Ensure no duplicate indexes

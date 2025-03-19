@@ -1,9 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
+const mongoose = require('mongoose');
 const Ticket = require('../models/Ticket'); 
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
+
+// const User = require('../models/User');
+// const updateAllTickets = async () => {
+//     const users = await User.find({});
+//     console.log(users)
+//     for (const user of users) {
+//         const tickets = await Ticket.find({userId: user._id});
+//         // console.log(tickets)
+        
+//         for (let i = 0; i < (await tickets).length; i++) {
+//             tickets[i].order = i + 1
+//             await tickets[i].save();
+//         }
+//         console.log(`✅ Updated orders for user ${user.firstname}`);
+//     }
+// }
+
+// //updateAllTickets()
 
 router.get('/', (req, res) => {
     res.status(200).send('ticket route home').end();
@@ -15,6 +34,7 @@ router.get('/byGoal/:goalId', async (req, res) => {
         const { goalId } = req.params;
         console.log("fetch tickets by goalId", goalId)
         const tickets = await Ticket.find({ goalId: goalId });  // Fetch tickets linked to goalId
+        // const tickets = await Ticket.find({ userId }).sort({ order: 1 }); //Sorted by order field
         res.status(200).json(tickets);
     } catch (error) {
         console.error("Error fetching tickets:", error);
@@ -121,6 +141,61 @@ router.patch("/update/:ticketId", async (req, res) => {
     } catch (error) {
         console.error("Error updating ticket status:", error);
         res.status(500).json({ message: "Server error", error });
+    }
+});
+
+router.patch("/update-order/:userId", async (req, res) => {
+    const { userId } = req.params;
+    const { newTickets } = req.body;
+    console.log(newTickets)
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: "Invalid user ID format" }).end();
+    }
+
+    try {
+        // Create an object mapping ticket IDs to their new order values
+        let updateOrderObject = {};
+        newTickets.forEach((ticket, idx) => {
+            updateOrderObject[ticket._id] = ticket.order ?? idx; // Assign `idx` if order is missing
+        });
+
+        console.log("🔄 Order Updates:", updateOrderObject);
+
+        // Find all tickets for the user
+        const tickets = await Ticket.find({ userId });
+
+        if (!tickets.length) {
+            return res.status(404).json({ message: "No tickets found for user" }).end();
+        }
+
+        // Prepare bulk update operations
+        const bulkOps = tickets.map(ticket => ({
+            updateOne: {
+                filter: { _id: ticket._id },
+                update: { $set: { order: updateOrderObject[ticket._id] } }
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            const result = await Ticket.bulkWrite(bulkOps);
+            // console.log(result)
+            const updatedTickets = {tickets}
+            
+            const newTickets = await Ticket.find({ userId })
+                .sort({ order: 1 })
+                .collation({ locale: "en", numericOrdering: true })
+                .lean();
+
+            console.log(`✅ Updated ${result.modifiedCount} tickets`);
+            res.status(200).json(newTickets).end();
+        } else {
+            console.log("⚠️ No updates needed");
+            res.status(200).send("No tickets needed updating").end();
+        }
+    } catch (e) {
+        console.error("❌ Error updating tickets:", e);
+        res.status(500).json({ message: "Error updating tickets", error: e }).end();
     }
 });
 
