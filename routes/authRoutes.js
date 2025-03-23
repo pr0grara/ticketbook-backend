@@ -88,6 +88,7 @@ router.post("/logout", (req, res) => {
         httpOnly: true, 
         secure: process.env.PROD_ENV === "true",
         sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax", 
+        domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
     });
     res.status(200).json({ message: "Logged out successfully" });
     console.log(JSON.stringify(res._headers))
