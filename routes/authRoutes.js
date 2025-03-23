@@ -90,6 +90,7 @@ router.post("/logout", (req, res) => {
         sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax", 
     });
     res.status(200).json({ message: "Logged out successfully" });
+    console.log(JSON.stringify(res._headers))
 });
 
 // Status
