@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
             httpOnly: true,
             secure: process.env.PROD_ENV === "true",
             sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax",
-            domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
+            // domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
@@ -84,11 +84,14 @@ router.post('/login', async (req, res) => {
 
 // Logout
 router.post("/logout", (req, res) => {
+    const isDevLogout = req.query.dev === "true";
+
     res.clearCookie("authToken", { 
         httpOnly: true, 
-        secure: process.env.PROD_ENV === "true",
-        sameSite: process.env.PROD_ENV === "true" ? "None" : "Lax", 
-        domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
+        secure: !isDevLogout,
+        sameSite: !isDevLogout ? "None" : "Lax",
+        path: "/"
+        // domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
     });
     res.status(200).json({ message: "Logged out successfully" });
     console.log(JSON.stringify(res._headers))
