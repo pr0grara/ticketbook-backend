@@ -94,7 +94,7 @@ router.post("/logout", (req, res) => {
         // domain: process.env.PROD_ENV === "true" ? "api.arabuilds.com" : "localhost",
     });
     res.status(200).json({ message: "Logged out successfully" });
-    console.log(JSON.stringify(res._headers))
+    // console.log(JSON.stringify(res._headers), "\n")
 });
 
 // Status

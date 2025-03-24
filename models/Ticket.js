@@ -12,7 +12,11 @@ const TicketSchema = new mongoose.Schema({
     priorityWeight: { type: Number, min: 1, max: 100 },
     depends_on: { type: String },
     deadline: { type: Date },
-    order: { type: Number }
+    order: { type: Number },
+    doToday: { type: Boolean, default: false },
+    doSoon: { type: Boolean, default: false },
+    quickWin: { type: Boolean, default: false },
+    deepFocus: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Ensure no duplicate indexes
