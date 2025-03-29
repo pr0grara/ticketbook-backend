@@ -10,6 +10,7 @@ const createTicketInstructions = fs.readFileSync(createTicketProcessorPath, "utf
 async function createTicketProcessor(action, reqBody) {
     try {
         const { context, userInput, userId, aiHistory } = reqBody;
+        const { shortcut } = action;
 
         console.log("🔹 CREATE TICKET REQUEST:", '"', userInput, '"');
 
@@ -17,28 +18,29 @@ async function createTicketProcessor(action, reqBody) {
         const previousAIResponses = aiHistory?.interactions.slice(1).map(r => r.aiResponse).join("\n\n");
 
         const systemMessage = `
+
 ${createTicketInstructions}
 
-### ⛔️ STRICT AMBIGUITY RESOLUTION ORDER (MANDATORY):
+###STRICT AMBIGUITY RESOLUTION ORDER (MANDATORY):
 
 When processing user input, you MUST strictly follow this ambiguity resolution order:
 
-1. ✅ **Immediate Previous AI Response (Highest Priority):**
+1. **Immediate Previous AI Response (Highest Priority):**
    - If the user's request logically continues or directly relates to your most recent AI response, you MUST use that response to create a relevant task, checklist, shopping list, or actionable ticket.
    - EVEN if the previous response is narrative, explanatory, or conversational (e.g., recipes, instructions, automotive maintenance steps, financial tasks, etc.), you MUST extract actionable tasks or checklist items from it.
 
    **Most Recent AI Response (CRITICAL CONTEXT)**:
    ${previousAIResponse ? previousAIResponse : previousAIResponse === '' ? 'None provided.' : previousAIResponse}
 
-2. ✅ **Earlier AI Responses:**
+2. **Earlier AI Responses:**
    If unresolved, reference prior AI interactions chronologically:
    ${previousAIResponses || 'None'}
 
-3. ✅ **Explicitly Provided Context**:
+3. **Explicitly Provided Context**:
    If still unresolved, consider the context provided explicitly:
    ${JSON.stringify(context, null, 2)}
 
-### ⛔️ ONLY RETURN AN AMBIGUITY ERROR IF:
+### ONLY RETURN AN AMBIGUITY ERROR IF:
 - Steps 1–3 FAIL to clarify the request clearly.
 - NO actionable tasks, instructions, or checklist items can be identified.
 
@@ -46,14 +48,11 @@ ${dateTimeNow}
 `;
 
         console.log(systemMessage)
-
-        const userMessage = `Here is the user input: ${userInput}`;
-
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 { role: "system", content: `userId: ${userId}\n${systemMessage}` },
-                { role: "user", content: userMessage }
+                { role: "user", content: userInput }
             ],
             response_format: { type: "json_object" }
         });

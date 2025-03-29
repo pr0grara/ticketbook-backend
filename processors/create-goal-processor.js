@@ -8,16 +8,28 @@ const { dateTimeNow } = require("./processor-util/processor-util");
 const createGoalProcessorPath = path.join(__dirname, "./processor-util/create-goal-instructions.txt");
 const createGoalInstructions = fs.readFileSync(createGoalProcessorPath, "utf-8"); // Read as string
 
-async function createGoalProcessor(action, reqBody) {
+async function createGoalProcessor(action, reqBody, createType) {
     try {
+        const { isGoal, isBucket } = createType;
         const { userInput, userId } = reqBody;
         console.log("[createGoalProcessor] Received:", { action, userInput, userId });
 
+        const systemMessage = `
+            userId: ${userId}
+            shortcut: ${action?.shortcut ? "true" : "false"}
+            isDefinitelyGoal: ${createType?.isGoal ? "true" : "false"}
+            isDefinitelyBucket: ${createType?.isBucket ? "true" : "false"}
+
+            ${createGoalInstructions}
+            ${dateTimeNow}
+        `
+
+        console.log(systemMessage);
         // Step 1: Call AI to refine the goal creation request
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: `userId: ${userId}\n` + createGoalInstructions + dateTimeNow },
+                { role: "system", content: systemMessage },
                 { role: "user", content: userInput }
             ],
             response_format: { type: "json_object" }
@@ -35,7 +47,7 @@ async function createGoalProcessor(action, reqBody) {
         // Step 2: Extract `generate_tickets` and remove it before saving the goal
         const { generate_tickets, ...goalData } = response;
 
-        const savedGoal = await createGoal(goalData);
+        const savedGoal = await createGoal(goalData, createType);
 
         // if (savedGoal)
 
@@ -55,7 +67,7 @@ async function createGoalProcessor(action, reqBody) {
             }
         }
 
-        return { action_type: "create_goal", status: "completed", message: "New goal created.", newGoal: savedGoal.newGoal, newTickets };
+        return { action_type: `create_goal`, isBucket: savedGoal.newGoal?.isBucket ? true : false, status: "completed", message: `New ${savedGoal.newGoal?.isBucket ? 'Bucket' : 'Goal'} created.`, newGoal: savedGoal.newGoal, newTickets };
 
     } catch (error) {
         console.error("[createGoalProcessor Error]:", error.message);

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const Goal = require("../models/Goal");
 
-async function createGoal(goal) {
+async function createGoal(goal, createType) {
     try {
-        const { userId, title, parentGoal, subGoals, ...rest } = goal;
+        const { userId, title, parentGoal, subGoals, category, ...rest } = goal;
 
         // Ensure userId and title exist
         if (!userId || !title) {
@@ -12,10 +12,11 @@ async function createGoal(goal) {
 
         const goalData = {
             userId,
+            category: category || "",
             title,
             ...rest,
             parentGoal: parentGoal ? new mongoose.Types.ObjectId(parentGoal) : null, // Convert string to ObjectId
-            subGoals: Array.isArray(subGoals) ? subGoals.map(id => new mongoose.Types.ObjectId(id)) : []
+            subGoals: Array.isArray(subGoals) ? subGoals.map(id => new mongoose.Types.ObjectId(id)) : [],
         };
 
         console.log("🟢 Creating Goal:", JSON.stringify(goalData, null, 2));
@@ -25,7 +26,7 @@ async function createGoal(goal) {
 
         console.log("✅ Goal Saved:", JSON.stringify(savedGoal, null, 2));
 
-        return { action_type: "create_goal", status: "completed", message: "New goal created.", newGoal: savedGoal };
+        return { action_type: createType?.isBucket ? "create_bucket" : "create_goal", status: "completed", message: `New ${createType?.isBucket ? "Bucket" : "Goal"} created.`, newGoal: savedGoal };
 
     } catch (error) {
         console.error("[Create Goal Error]:", error.message);

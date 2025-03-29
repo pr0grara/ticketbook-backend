@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const GoalSchema = new mongoose.Schema({
     userId: { type: String, required: true }, // Owner of the goal
-    category: { type: String, enum: ["Personal Growth", "Career", "Health & Fitness", "Finance", "Learning"] }, // Universal categories
+    category: { type: String, enum: ["Personal Growth", "Career", "Health & Fitness", "Finance", "Learning", ""] }, // Universal categories
     title: { type: String, required: true },
     priority: { type: Number, min: 1, max: 100 }, // Priority rating
     description: { type: String },

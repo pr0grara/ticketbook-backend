@@ -19,27 +19,43 @@ const preprocessorContext = fs.readFileSync(preprocessorContextPath, "utf-8"); /
 
 const preprocessor = async (request) => {
     try {
-        const { userInput, context } = request.body; //Available variables: aiHistory
-
-        const aiResponse = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                { role: "system", content: preprocessorContext + "\nContext:\n" + JSON.stringify(context) },
-                { role: "user", content: userInput }
-            ],
-            response_format: { type: "json_object" }
-        });
-
-        if (!aiResponse.choices || !aiResponse.choices[0].message) {
-            throw new Error("Invalid AI response structure.");
+        const { userInput, context } = request.body;
+        const { shortcut } = request.body.context;
+        let action;
+  
+        if (!!shortcut) {
+            switch (shortcut) {
+                case 'New Ticket':
+                        action = { action_type: "create_ticket", shortcut: true }
+                        break
+                    case 'New Goal':
+                        action = { action_type: "create_goal", shortcut: true }
+                        break
+                    case 'New Bucket':
+                        action = { action_type: "create_bucket", shortcut: true }
+                        break
+            }
+        } else {
+            const aiResponse = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [
+                    { role: "system", content: preprocessorContext + "\nContext:\n" + JSON.stringify(context) },
+                    { role: "user", content: userInput }
+                ],
+                response_format: { type: "json_object" }
+            });
+    
+            if (!aiResponse.choices || !aiResponse.choices[0].message) {
+                throw new Error("Invalid AI response structure.");
+            }
+    
+            action = typeof aiResponse.choices[0].message.content === "string"
+                ? JSON.parse(aiResponse.choices[0].message.content)
+                : aiResponse.choices[0].message.content;
+    
+            
+            console.log("PREPROCESSOR GENERATED ACTION: ", action)
         }
-
-        const action = typeof aiResponse.choices[0].message.content === "string"
-            ? JSON.parse(aiResponse.choices[0].message.content)
-            : aiResponse.choices[0].message.content;
-
-        
-        console.log("PREPROCESSOR GENERATED ACTION: ", action)
 
         switch (action.action_type) {
             case "modify_ticket":
@@ -49,7 +65,9 @@ const preprocessor = async (request) => {
             case "create_many_tickets":
                 return await createManyTicketsProcessor(action, request.body);
             case "create_goal":
-                return await createGoalProcessor(action, request.body);
+                return await createGoalProcessor(action, request.body, { isGoal: true });
+            case "create_bucket":
+                return await createGoalProcessor(action, request.body, { isBucket: true });
             case "delete_ticket":
                 return await deleteGoalProcessor(action);
             case "delete_goal":
