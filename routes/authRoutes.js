@@ -76,7 +76,7 @@ router.post('/login', async (req, res) => {
 
         console.log("Set-Cookie Header Sent:", res.getHeaders()["set-cookie"]);
         
-        res.status(200).json({ success: true, userId: user._id }).end();
+        res.status(200).json({ success: true, userId: user._id, watchedTutorial: user.watchedTutorial || false }).end();
     } catch {
         return res.status(500).json({ error: "Internal server error" }).end();
     };

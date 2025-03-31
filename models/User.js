@@ -5,6 +5,7 @@ const UserSchema = new Schema({
     firstname: { type: String, required: true },
     email: { type: String, required: false },
     hash: { type: String, required: true },
+    watchedTutorial: { type: Boolean, default: false },
     date: { type: Date, default: Date() },
 });
 

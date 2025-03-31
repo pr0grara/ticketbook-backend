@@ -44,4 +44,24 @@ router.patch('/update-tickets-order', async (req, res) => {
     }
 })
 
+router.get("/watched-tutorial/status/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await User.findById(userId);
+        return res.status(200).json({watchedTutorial: user.watchedTutorial || false}).end(); 
+    } catch (e) {
+        return res.status(500).json({ error: "Could not access tutorial status" }).end();
+    }
+})
+
+router.post("/mark-tutorial-watched", async (req, res) => {
+    try {
+        const { userId, watched } = req.body; // or use JWT/cookie
+        await User.updateOne({ _id: userId }, { watchedTutorial: watched });
+        res.status(200).json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Could not update tutorial status." });
+    }
+});
+
 module.exports = router;
