@@ -24,7 +24,7 @@ async function createGoalProcessor(action, reqBody, createType) {
             ${dateTimeNow}
         `
 
-        console.log(systemMessage);
+        // console.log(systemMessage);
         // Step 1: Call AI to refine the goal creation request
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
@@ -41,7 +41,7 @@ async function createGoalProcessor(action, reqBody, createType) {
 
         const response = JSON.parse(aiResponse.choices[0].message.content);
         console.log("[createGoalProcessor] AI Response:", response);
-        if (response.error) return { action_type: "error", status: "error", message: response.error }
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_GOAL" }
 
         
         // Step 2: Extract `generate_tickets` and remove it before saving the goal

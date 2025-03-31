@@ -44,6 +44,7 @@ async function provideAnswerProcessor(action, reqBody) {
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "PROVIDE_ANSWER" }
         console.log("✅ AI-Generated Answer:", response);
 
         return { action_type: "provide_answer", status: "completed", message: response };

@@ -60,16 +60,6 @@ Your primary job is not to generate full responses but to classify and direct th
 
 ---
 
-### **CLARIFICATION CHECK**
-- If a request is **ambiguous** and could mean either `"create_ticket"` or `"create_goal"`, set:
-{ "clarification_needed": true }
-
-- **Example Ambiguous Inputs:**  
-  - "I want to work on marketing." → Could mean `create_ticket` (specific task) or `create_goal` (broad strategy).  
-  - "Help me with my business." → Needs clarification before creating a ticket.
-
----
-
 ### EXPECTED OUTPUT FORMAT
 Your response must be in valid JSON format.  
 Example outputs based on different inputs:
@@ -78,7 +68,6 @@ Example outputs based on different inputs:
 ```json
 {
     "action_type": "provide_answer",
-    "clarification_needed": false
 }
 ```
 
@@ -86,7 +75,6 @@ Example outputs based on different inputs:
 ```json
 {
     "action_type": "provide_advice",
-    "clarification_needed": false
 }
 ```
 
@@ -94,23 +82,13 @@ Example outputs based on different inputs:
 ```json
 {
     "action_type": "create_ticket",
-    "clarification_needed": false
 }
 ```
 
-4. **User requests to update a ticket but does not specify which:**
-```json
-{
-    "action_type": "modify_ticket",
-    "clarification_needed": true
-}
-```
-
-5. **User explicitly requests a new goal but does not specify details:**
+4. **User explicitly requests a new goal but does not specify details:**
 ```json
 {
     "action_type": "create_goal",
-    "clarification_needed": true
 }
 ```
 

@@ -42,6 +42,7 @@ async function modifyTicketProcessor(reqBody) {
         }
 
         const response = JSON.parse(aiResponse.choices[0].message.content);
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "MODIFY_TICKET" }
 
         console.log("🔹 AI RESPONSE:", response);
 

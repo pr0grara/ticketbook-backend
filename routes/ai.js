@@ -4,6 +4,7 @@ const router = express.Router();
 const OpenAI = require('openai');
 const {ai_input_system_context, dailyPlanInstructions, createAIInstructions} = require('../util/ai_util');
 const preprocessor = require("../processors/preprocessor");
+const Error = require('../models/Error');
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -143,6 +144,17 @@ router.post('/request', async (req, res) => {
 
         // ✅ Immediately return if preprocessor completed the task
         if (processedResponse.status) {
+            if (processedResponse.status === "error") {
+                let newError = new Error({
+                    errorType: "SERVER",
+                    serverError: processedResponse,
+                    processorError: processedResponse.type || "UNKNOWN",
+                    userInput: req.body.userInput,
+                    context: req.body.context,
+                    userId: req.body.userId
+                })
+                await newError.save();
+            }
             return res.status(200).json({ response: processedResponse }).end();
         }
 

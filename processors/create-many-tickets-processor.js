@@ -42,8 +42,9 @@ async function createManyTicketsProcessor(action, reqBody) {
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
-        if (!!response.error) throw new Error(`AI error within create-many-tickets.js: ${JSON.stringify(response.error)}`);
-
+        // if (!!response.error) throw new Error(`AI error within create-many-tickets.js: ${JSON.stringify(response.error)}`);
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_MANY_TICKETS" }
+        
         if (!Array.isArray(response.newTickets) || response.newTickets.length === 0) {
             throw new Error("AI response did not contain valid newTickets.");
         }

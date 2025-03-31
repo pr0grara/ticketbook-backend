@@ -18,6 +18,7 @@ const ideasRoutes = require('./routes/ideas');
 const goalsRoutes = require('./routes/goals');
 const calendarRoutes = require('./routes/calendar');
 const aiRoutes = require('./routes/ai');
+const errorRoutes = require('./routes/error');
 const interestsRoute = require('./routes/interests');
 const authRoutes = require('./routes/authRoutes');
 
@@ -92,6 +93,7 @@ app.use('/api/ideas', ideasRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/ai', aiRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/error", errorRoutes);
 
 app.listen(PORT, () => {
     console.log(`ticketbook listening on port ${PORT}`)

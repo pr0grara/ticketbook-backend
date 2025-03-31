@@ -47,6 +47,8 @@ async function provideAdviceProcessor(action, reqBody) {
         const response = typeof aiResponse.choices[0].message.content === "string"
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
+        
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "PROVIDE_ADVICE" }
 
         console.log("✅ AI-Generated Advice:", response);
 

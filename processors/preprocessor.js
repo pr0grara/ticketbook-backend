@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Error = require('../models/Error');
 const {
     modifyTicketProcessor,
     createTicketProcessor,
@@ -53,7 +54,6 @@ const preprocessor = async (request) => {
                 ? JSON.parse(aiResponse.choices[0].message.content)
                 : aiResponse.choices[0].message.content;
     
-            
             console.log("PREPROCESSOR GENERATED ACTION: ", action)
         }
 
@@ -78,10 +78,12 @@ const preprocessor = async (request) => {
                 return await provideAnswerProcessor(action, request.body);
             case "provide_advice":
                 return await provideAdviceProcessor(action, request.body);
+            case "clarification_needed":
+                return { action_type: "error", status: "error", message: action.message, type: "PREPROCESSOR" }
             case "error":
-                return { action_type: "error", status: "error", message: `error in PREprocessor || Ara said: congrats you were either being cute or you broke the ground || You said: ${userInput} || The machine said: ${action.message}` };
+                return { action_type: "error", status: "error", message: action.message, type: "PREPROCESSOR" };
             case "fatal error":
-                return { action_type: "error", status: "error", message: action.message }
+                return { action_type: "error", status: "error", message: action.message, type: "PREPROCESSOR" }
             default:
                 throw new Error(`Unknown action_type: ${action.action_type}`);
         }

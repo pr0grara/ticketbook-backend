@@ -65,7 +65,7 @@ ${dateTimeNow}
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
-        if (response.error) return { action_type: "error", status: "error", message: response.error }
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_TICKET" }
 
         return await createTicket(response);
 
