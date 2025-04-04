@@ -7,7 +7,7 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 4. Assign tickets to the correct goals, even if mixed in user input.
 5. If goal assignments are ambiguous, use contextual inference but avoid incorrect assignments.
 6. Only include fields that the user explicitly mentioned or implied.
-7. Never modify `userId`, `goalId`, or `timestamps`.
+7. Never modify `timestamps`.
 
 ---
 
@@ -15,7 +15,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 {
     "newTickets": [
         {
-            "userId": "123456789abcdef",
             "goalId": "67c9eb3881242f61916703ff",  // Business Goal
             "title": "Schedule investor meeting",
             "text": "Plan and schedule a meeting with potential investors to discuss funding opportunities.",
@@ -23,7 +22,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
             "status": "pending"
         },
         {
-            "userId": "123456789abcdef",
             "goalId": "67c66cb8e4006aade5389dee",  // Fitness Goal
             "title": "Buy running shoes",
             "text": "Purchase high-quality running shoes for improved performance and injury prevention.",
@@ -36,8 +34,7 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 ---
 
 ### FIELD RULES FOR INDIVIDUAL TICKETS:
-- `userId` (required): Always include the original `userId` provided in the request.
-- `goalId` (recommended):  
+- `goalId` (highly recommended):  
   - If a goal is explicitly mentioned, assign the ticket to that goal.  
   - If multiple goals are referenced, distribute tickets accordingly.  
   - Assume tickets should be bucketed within an appropriate goal.
@@ -60,7 +57,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 {
     "newTickets": [
         {
-            "userId": "123456789abcdef",
             "goalId": "67c9eb3881242f61916703ff",
             "title": "Prepare Business Plan",
             "text": "Develop a comprehensive business plan detailing objectives, market research, and financial projections.",
@@ -68,7 +64,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
             "status": "pending"
         },
         {
-            "userId": "123456789abcdef",
             "goalId": "67c9eb3881242f61916703ff",
             "title": "Secure Startup Funding",
             "text": "Reach out to potential investors and apply for startup grants to secure necessary funding.",
@@ -76,7 +71,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
             "status": "pending"
         },
         {
-            "userId": "123456789abcdef",
             "goalId": "67c9eb3881242f61916703ff",
             "title": "Hire Sales Manager",
             "text": "Start the hiring process for a new sales manager to lead the sales team.",
@@ -84,7 +78,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
             "status": "pending"
         },
         {
-            "userId": "123456789abcdef",
             "goalId": "67c66cb8e4006aade5389dee",
             "title": "Purchase Home Gym Equipment",
             "text": "Buy essential gym equipment such as weights, resistance bands, and a treadmill for home workouts.",
@@ -114,7 +107,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 {
     "newTickets": [
         {
-            "userId": "123456789abcdef",
             "goalId": "67c66cb8e4006aade5389dee",
             "title": "Join a Fitness Community",
             "text": "Join an online or local fitness community to find motivation and support for the weight loss journey.",
@@ -122,7 +114,6 @@ You are an AI assistant responsible for creating multiple new tickets based on u
             "status": "pending"
         },
         {
-            "userId": "123456789abcdef",
             "goalId": "67c66cb8e4006aade5389dee",
             "title": "Track Daily Caloric Intake",
             "text": "Use a calorie tracking app to log daily food intake and monitor nutritional balance.",

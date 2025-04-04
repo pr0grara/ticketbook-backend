@@ -8,27 +8,21 @@ const createTicketsProcessorPath = path.join(__dirname, "./processor-util/create
 const createTicketsInstructions = fs.readFileSync(createTicketsProcessorPath, "utf-8"); // Read as string
 
 
-async function createManyTicketsProcessor(action, reqBody) {
+async function createManyTicketsProcessor(action, reqBody, userMessage) {
     try {
-        const { context, userInput, userId } = reqBody; // ✅ Fixed extraction (no .body)
-        const { clarification_needed } = action;
-
-        console.log("🔹 Received Create Many Tickets Request:", userInput);
+        const { userId } = reqBody; // ✅ Fixed extraction (no .body)
+        console.log("[createManyTicketsProcessor] Received:", { action, userId });
 
         const systemMessage = `
         ${createTicketsInstructions}
-
-        Context:
-        ${JSON.stringify(context, null, 2)}
+        ${dateTimeNow}
         `;
-
-        const userMessage = `Here is the user input: ${userInput}`;
 
         // Step 1: Call ChatGPT to refine ticket creation request
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: `userId: ${userId}\n` + systemMessage + dateTimeNow },
+                { role: "system", content: systemMessage + dateTimeNow },
                 { role: "user", content: userMessage }
             ],
             response_format: { type: "json_object" }
@@ -43,20 +37,31 @@ async function createManyTicketsProcessor(action, reqBody) {
             : aiResponse.choices[0].message.content;
 
         // if (!!response.error) throw new Error(`AI error within create-many-tickets.js: ${JSON.stringify(response.error)}`);
-        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_MANY_TICKETS" }
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_MANY_TICKETS`" }
         
         if (!Array.isArray(response.newTickets) || response.newTickets.length === 0) {
             throw new Error("AI response did not contain valid newTickets.");
         }
 
-        console.log("✅ AI-Generated Tickets:", response.newTickets);
-
         // Step 2: Call createTicket action handler with AI-refined data and create receipt
         let ticketReceipts = [];
-        for (const newTicket of response.newTickets) {
+
+        let newTickets = response.newTickets.map(tick => {
+            tick["userId"] = userId;
+            return tick;
+        });
+
+        console.log("AI-Generated Tickets + hardcoded userId: ", newTickets);
+
+    
+        for (const newTicket of newTickets) {
             let receipt = await createTicket(newTicket);
             ticketReceipts.push(receipt);
         }
+        // for (const newTicket of response.newTickets) {
+        //     let receipt = await createTicket(newTicket);
+        //     ticketReceipts.push(receipt);
+        // }
 
         //Step 3: Return receipt to preprocessor
         return { action_type: "create_many_tickets", status: "completed", message: "New tickets created.", newTickets: ticketReceipts };

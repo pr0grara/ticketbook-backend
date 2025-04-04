@@ -1,19 +1,22 @@
 const fs = require("fs");
 const path = require("path");
 const { openai } = require("../util/ai_util");
+const createTicket = require("../action-handlers/create-ticket");
 const { dateTimeNow } = require("./processor-util/processor-util");
 
-const provideAnswerProcessorPath = path.join(__dirname, "./processor-util/provide-answer-instructions.txt");
-const provideAnswerInstructions = fs.readFileSync(provideAnswerProcessorPath, "utf-8"); // Read as string
+const createTicketProcessorPath = path.join(__dirname, "./processor-util/create-ticket-instructions.txt");
+const createTicketInstructions = fs.readFileSync(createTicketProcessorPath, "utf-8");
 
-async function provideAnswerProcessor(action, reqBody, userMessage) {
+async function createTicketProcessor(action, reqBody, userMessage) {
     try {
-        const { userId } = reqBody;
+        const { context, userInput, userId } = reqBody;
+        const { shortcut } = action;
 
-        console.log("[provideAnswerProcessor] Received:", { action, userId });
+        console.log("[createTicketProcessor] Received:", { action, userId });;
 
         const systemMessage = `
-${provideAnswerInstructions}
+
+${createTicketInstructions}
 
 ###STRICT AMBIGUITY RESOLUTION ORDER (MANDATORY):
 
@@ -23,24 +26,29 @@ When processing user input, you MUST strictly follow this ambiguity resolution o
    - If the user's request logically continues or directly relates to your most recent AI response, you MUST use that response to create a relevant task, checklist, shopping list, or actionable ticket.
    - EVEN if the previous response is narrative, explanatory, or conversational (e.g., recipes, instructions, automotive maintenance steps, financial tasks, etc.), you MUST extract actionable tasks or checklist items from it.
 
+   **Most Recent AI Response (CRITICAL CONTEXT)**:
+   ${previousAIResponse ? previousAIResponse : previousAIResponse === '' ? 'None provided.' : previousAIResponse}
+
 2. **Earlier AI Responses:**
-   If unresolved, reference prior AI interactions chronologically.
+   If unresolved, reference prior AI interactions chronologically:
+   ${previousAIResponses || 'None'}
 
 3. **Explicitly Provided Context**:
-   If still unresolved, consider the entire context provided.
+   If still unresolved, consider the context provided explicitly:
+   ${JSON.stringify(context, null, 2)}
 
 ### ONLY RETURN AN AMBIGUITY ERROR IF:
 - Steps 1–3 FAIL to clarify the request clearly.
 - NO actionable tasks, instructions, or checklist items can be identified.
 
 ${dateTimeNow}
-        `.trim();
+`;
 
-        // Step 1: Call ChatGPT to generate an answer
+        // console.log(systemMessage)
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: systemMessage },
+                { role: "system", content: `userId: ${userId}\n${systemMessage}` },
                 { role: "user", content: userMessage }
             ],
             response_format: { type: "json_object" }
@@ -54,14 +62,14 @@ ${dateTimeNow}
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
-        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "PROVIDE_ANSWER" }
-        // console.log("AI-Generated Answer:", response);
+        if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_TICKET" }
 
-        return { action_type: "provide_answer", status: "completed", message: response };
+        return await createTicket(response);
+
     } catch (error) {
-        console.error("[Provide Answer Processor Error]:", error.message);
-        return { status: "error", message: error.message };
+        console.error("[Create Ticket Processor Error]:", error.message);
+        return { status: "fatal_error", message: error.message };
     }
 }
 
-module.exports = provideAnswerProcessor;
+module.exports = createTicketProcessor;

@@ -6,35 +6,19 @@ const { dateTimeNow } = require("./processor-util/processor-util");
 const provideAdviceProcessorPath = path.join(__dirname, "./processor-util/provide-advice-instructions.txt");
 const provideAdviceInstructions = fs.readFileSync(provideAdviceProcessorPath, "utf-8"); // Read as string
 
-async function provideAdviceProcessor(action, reqBody) {
+async function provideAdviceProcessor(action, reqBody, userMessage) {
     try {
-        const { userInput, userId, context, aiHistory } = reqBody;
+        const { userInput, userId } = reqBody;
 
-        let conversation = aiHistory?.interactions?.flatMap(entry => [
-            { role: "user", content: entry.userMessage },
-            { role: "assistant", content: entry.aiResponse }
-        ]) || [];
+        console.log("[provideAdviceProcessor] Received:", { action, userInput, userId });
 
-        console.log("🔹 Received Provide Advice Request:", userInput);
-
-        const systemMessage = `
-        ${provideAdviceInstructions}
-
-        Context:
-        ${JSON.stringify(context, null, 2)}
-        Chat History:
-        ${JSON.stringify(conversation)}
-        `;
-
-        console.log("SYSTEM MESSAGE:\n", systemMessage);
-
-        const userMessage = `Here is the user input: ${userInput}`;
+        const systemMessage = provideAdviceInstructions;
 
         // Step 1: Call ChatGPT to generate an answer
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: `userId: ${userId}\n` + systemMessage + dateTimeNow },
+                { role: "system", content: systemMessage + dateTimeNow },
                 { role: "user", content: userMessage }
             ],
             response_format: { type: "json_object" }
@@ -50,7 +34,7 @@ async function provideAdviceProcessor(action, reqBody) {
         
         if (response.error) return { action_type: "error", status: "error", message: response.error, type: "PROVIDE_ADVICE" }
 
-        console.log("✅ AI-Generated Advice:", response);
+        // console.log("AI-Generated Advice:", response);
 
         return { action_type: "provide_advice", status: "completed", message: response };
     } catch (error) {

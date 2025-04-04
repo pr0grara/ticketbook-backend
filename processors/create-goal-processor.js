@@ -8,29 +8,26 @@ const { dateTimeNow } = require("./processor-util/processor-util");
 const createGoalProcessorPath = path.join(__dirname, "./processor-util/create-goal-instructions.txt");
 const createGoalInstructions = fs.readFileSync(createGoalProcessorPath, "utf-8"); // Read as string
 
-async function createGoalProcessor(action, reqBody, createType) {
+async function createGoalProcessor(action, reqBody, createType, userMessage) {
     try {
-        const { isGoal, isBucket } = createType;
         const { userInput, userId } = reqBody;
-        console.log("[createGoalProcessor] Received:", { action, userInput, userId });
+        console.log("[createGoalProcessor] Received:", { action, userId });
 
         const systemMessage = `
-            userId: ${userId}
-            shortcut: ${action?.shortcut ? "true" : "false"}
-            isDefinitelyGoal: ${createType?.isGoal ? "true" : "false"}
-            isDefinitelyBucket: ${createType?.isBucket ? "true" : "false"}
+shortcut: ${action?.shortcut ? "true" : "false"}
+isDefinitelyGoal: ${createType?.isGoal ? "true" : "false"}
+isDefinitelyBucket: ${createType?.isBucket ? "true" : "false"}
 
-            ${createGoalInstructions}
-            ${dateTimeNow}
-        `
+${createGoalInstructions}
+${dateTimeNow}
+        `.trim();
 
-        // console.log(systemMessage);
         // Step 1: Call AI to refine the goal creation request
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 { role: "system", content: systemMessage },
-                { role: "user", content: userInput }
+                { role: "user", content: userMessage }
             ],
             response_format: { type: "json_object" }
         });
@@ -40,14 +37,17 @@ async function createGoalProcessor(action, reqBody, createType) {
         }
 
         const response = JSON.parse(aiResponse.choices[0].message.content);
-        console.log("[createGoalProcessor] AI Response:", response);
+        // console.log("[createGoalProcessor] AI Response:", response);
         if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_GOAL" }
 
         
         // Step 2: Extract `generate_tickets` and remove it before saving the goal
         const { generate_tickets, ...goalData } = response;
 
-        const savedGoal = await createGoal(goalData, createType);
+        let newGoal = goalData;
+        newGoal["userId"] = userId;
+
+        const savedGoal = await createGoal(newGoal, createType);
 
         // if (savedGoal)
 

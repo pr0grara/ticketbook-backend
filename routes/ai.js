@@ -105,7 +105,7 @@ router.post('/daily-plan', async (req, res) => {
 });
 
 router.post('/advise-ticket', async (req, res) => {
-    const { userInput, context, requestType } = req.body;
+    const { context, requestType } = req.body;
     // console.log("CONTEXT: ", context)
     const sytemMessage = `You are an AI assistant for a productivity app. The user 
     has asked for help with the existing ticket:
@@ -136,11 +136,17 @@ router.post('/advise-ticket', async (req, res) => {
     res.status(200).json({response: cleanedRes}).end();
 }) 
 
+//key function
 router.post('/request', async (req, res) => {
     try {
+        const t1 = Date.now();
         const processedResponse = await preprocessor(req);
+        const t2 = Date.now();
+        const processorTime = ((t2 - t1) / 1000).toFixed(1);
+        console.log("USER INPUT: ", req.body?.userInput)
+        console.log("PROCESSOR TIME: ", parseFloat(processorTime), "s")
 
-        console.log("🔍 Preprocessor Output:", processedResponse);
+        // console.log("🔍 Preprocessor Output:", processedResponse);
 
         // ✅ Immediately return if preprocessor completed the task
         if (processedResponse.status) {
