@@ -16,7 +16,9 @@ const TicketSchema = new mongoose.Schema({
     doToday: { type: Boolean, default: false },
     doSoon: { type: Boolean, default: false },
     isQuickWin: { type: Boolean, default: false },
-    isDeepFocus: { type: Boolean, default: false }
+    isDeepFocus: { type: Boolean, default: false },
+    isRecurring: { type: Boolean, default: false },
+    baselineManifest: { type: Object, default: {} }
 }, { timestamps: true });
 
 // Ensure no duplicate indexes

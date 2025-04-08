@@ -6,7 +6,7 @@ const summarizeChat = (conversation) => {
             return `${idx + 1}. ${prefix}: ${entry.content.trim()}`;
         })
         .join("\n");
-    console.log(chatSummary);
+    // console.log(chatSummary);
     return chatSummary;
 }
 
@@ -33,7 +33,7 @@ Ticket ${idx + 1}: ${t.task}
 `.trim();
     }).join("\n\n");
 
-    console.log(formattedTickets);
+    // console.log(formattedTickets);
     return formattedTickets;
 }
 
@@ -48,7 +48,7 @@ Goal ${idx + 1}: ${g.goal}
 `.trim();
     }).join("\n\n");
 
-    console.log(formattedGoals);
+    // console.log(formattedGoals);
     return formattedGoals;
 }
 

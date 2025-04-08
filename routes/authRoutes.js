@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
         const isMatch = bcrypt.compareSync(password, user.hash)
         if (!isMatch) return res.status(401).json({ error: "Invalid username or password" });
 
-        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "7d" })
+        const token = jwt.sign({ id: user._id, email: user.email, firstname: user.firstname }, JWT_SECRET, { expiresIn: "7d" })
         // console.log("Setting Cookie: ", token);
         
         res.cookie("authToken", token, {

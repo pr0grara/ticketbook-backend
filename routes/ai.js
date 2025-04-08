@@ -144,7 +144,7 @@ router.post('/request', async (req, res) => {
         const t2 = Date.now();
         const processorTime = ((t2 - t1) / 1000).toFixed(1);
         console.log("USER INPUT: ", req.body?.userInput)
-        console.log("PROCESSOR TIME: ", parseFloat(processorTime), "s")
+        console.log("PROCESSING TIME: ", parseFloat(processorTime), "s")
 
         // console.log("🔍 Preprocessor Output:", processedResponse);
 

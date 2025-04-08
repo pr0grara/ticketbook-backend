@@ -74,7 +74,7 @@ When processing user input, you MUST strictly follow this ambiguity resolution o
             const aiResponse = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [
-                    { role: "system", content: preprocessorContext },
+                    { role: "system", content: systemMessage },
                     { role: "user", content: userMessage }
                 ],
                 response_format: { type: "json_object" }
