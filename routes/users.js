@@ -67,11 +67,11 @@ router.post("/mark-tutorial-watched", async (req, res) => {
 
 router.post("/feedback", async (req, res) => {
     const {userId, userFeedback} = req.body;
-    if (!userId) return res.status(401).send('User ID not provided');
-    if (!userFeedback) return res.status(401).send('User Feedback not provided');
+    // if (!userId) return res.status(400).send('User ID not provided');
+    if (!userFeedback) return res.status(400).send('User Feedback not provided');
 
     const feedback = new Feedback({
-        userId,
+        // userId,
         userFeedback
     })
 
