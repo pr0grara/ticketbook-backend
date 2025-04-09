@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const { idGenerator } = require('../util/util');
+const Feedback = require('../models/Feedback');
 
 router.get('/', (req, res) => {
     res.status(200).send('user route home').end();
@@ -63,5 +64,20 @@ router.post("/mark-tutorial-watched", async (req, res) => {
         res.status(500).json({ error: "Could not update tutorial status." });
     }
 });
+
+router.post("/feedback", async (req, res) => {
+    const {userId, userFeedback} = req.body;
+    if (!userId) return res.status(401).send('User ID not provided');
+    if (!userFeedback) return res.status(401).send('User Feedback not provided');
+
+    const feedback = new Feedback({
+        userId,
+        userFeedback
+    })
+
+    feedback.save()
+        .then(() => res.status(200).send('Thank you for your feedback').end())
+        .catch(err => res.status(500).json(err).end());
+})
 
 module.exports = router;
