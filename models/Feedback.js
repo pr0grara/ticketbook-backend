@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const FeedbackSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    userFeedback: { type: String, required: true }, //If relevant
+    userId: { type: String, },
+    userFeedback: { type: String, required: true },
 }, { timestamps: true });
 
 const Feedback = mongoose.model("feedbacks", FeedbackSchema);
