@@ -18,24 +18,6 @@ async function createTicketProcessor(action, reqBody, userMessage) {
 
 ${createTicketInstructions}
 
-###STRICT AMBIGUITY RESOLUTION ORDER (MANDATORY):
-
-When processing user input, you MUST strictly follow this ambiguity resolution order:
-
-1. **Immediate Previous AI Response (Highest Priority):**
-   - If the user's request logically continues or directly relates to your most recent AI response, you MUST use that response to create a relevant task, checklist, shopping list, or actionable ticket.
-   - EVEN if the previous response is narrative, explanatory, or conversational (e.g., recipes, instructions, automotive maintenance steps, financial tasks, etc.), you MUST extract actionable tasks or checklist items from it.
-
-2. **Earlier AI Responses:**
-   If unresolved, reference prior AI interactions chronologically.
-
-3. **Explicitly Provided Context**:
-   If still unresolved, consider the entire context provided.
-
-### ONLY RETURN AN AMBIGUITY ERROR IF:
-- Steps 1–3 FAIL to clarify the request clearly.
-- NO actionable tasks, instructions, or checklist items can be identified.
-
 ${dateTimeNow}
 `.trim();
 
@@ -59,7 +41,10 @@ ${dateTimeNow}
 
         if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_TICKET" }
 
-        return await createTicket(response);
+        let newTicket = {...response, userId};
+        // console.log(newTicket);
+
+        return await createTicket(newTicket);
 
     } catch (error) {
         console.error("[Create Ticket Processor Error]:", error.message);

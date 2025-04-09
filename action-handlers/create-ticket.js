@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Ticket = require("../models/Ticket");
 
 async function createTicket(ticket) {
+    // console.log('ticket from gpt: ', JSON.stringify(ticket))
     try {
         let { userId, goalId, text,...ticketData } = ticket;
 

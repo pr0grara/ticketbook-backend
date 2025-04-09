@@ -51,7 +51,7 @@ async function createManyTicketsProcessor(action, reqBody, userMessage) {
             return tick;
         });
 
-        console.log("AI-Generated Tickets + hardcoded userId: ", newTickets);
+        // console.log("AI-Generated Tickets + hardcoded userId: ", newTickets);
 
     
         for (const newTicket of newTickets) {
