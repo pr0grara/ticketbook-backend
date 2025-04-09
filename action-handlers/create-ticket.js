@@ -3,7 +3,7 @@ const Ticket = require("../models/Ticket");
 
 async function createTicket(ticket) {
     try {
-        let { userId, goalId, ...ticketData } = ticket;
+        let { userId, goalId, text,...ticketData } = ticket;
 
         // Ensure userId exists
         if (!userId) {
@@ -14,7 +14,7 @@ async function createTicket(ticket) {
         userId = new mongoose.Types.ObjectId(userId);
         goalId = goalId ? new mongoose.Types.ObjectId(goalId) : null;
 
-        const newTicket = new Ticket({ userId, goalId, ...ticketData });
+        const newTicket = new Ticket({ userId, goalId, text: text || "...", ...ticketData });
         if (newTicket.notes?.length === 0) newTicket.notes = [""];
         if (newTicket.checklist?.length === 0) newTicket.checklist = [{ item: "", status: "unchecked" }, { item: "", status: "unchecked" }];
         // console.log("🟢 Creating Ticket:", JSON.stringify(newTicket, null, 2));
