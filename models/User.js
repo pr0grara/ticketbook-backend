@@ -7,6 +7,7 @@ const UserSchema = new Schema({
     hash: { type: String, required: true },
     watchedTutorial: { type: Boolean, default: false },
     date: { type: Date, default: Date() },
+    forceReload: { type: Boolean, default: false }
 });
 
 const User = mongoose.model("User", UserSchema);

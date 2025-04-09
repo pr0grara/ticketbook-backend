@@ -6,6 +6,7 @@ const Goal = require('../models/Goal');
 const Ticket = require('../models/Ticket');
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
+const User = require('../models/User');
 
 router.get('/', (req, res) => {
     res.status(200).send('goal route home').end();
@@ -41,12 +42,23 @@ router.get('/byid/:goalId', authenticateUser, (req, res) => {
         .catch(err => res.status(401).json({error: "could not find goal by id"}).end())
 })
 
-router.post('/foruser', authenticateUser, (req, res) => {
+router.post('/foruser', authenticateUser, async (req, res) => {
     let userId = req.body.userId;
     console.log("fetch goals by userId", userId)
 
-    Goal.find({ userId, })
-        .then(data => res.status(200).json(data).end)
+    let user = await User.findById(userId)
+
+    Goal.find({ userId })
+        .then(data => {
+            if (!!user.forceReload) {
+                user.forceReload = false;
+                user.save()
+                    .then(() => res.status(200).json({ forceReload: true }).end())
+                    .catch(err => console.log(err))
+            } else {
+                res.status(200).json(data).end()
+            }
+        })
         .catch(err => res.status(404).send(err).end())
 })
 
