@@ -39,7 +39,7 @@ ${dateTimeNow}
         const response = JSON.parse(aiResponse.choices[0].message.content);
         // console.log("[createGoalProcessor] AI Response:", response);
         if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_GOAL" }
-
+        // console.log(response);
         
         // Step 2: Extract `generate_tickets` and remove it before saving the goal
         const { generate_tickets, ...goalData } = response;

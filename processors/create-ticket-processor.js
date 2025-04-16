@@ -15,12 +15,13 @@ async function createTicketProcessor(action, reqBody, userMessage) {
         console.log("[createTicketProcessor] Received:", { action, userId });;
 
         const systemMessage = `
-
 ${createTicketInstructions}
+
+shortcut mode: ${!!shortcut ? 'active' : 'inactive'}
 
 ${dateTimeNow}
 `.trim();
-
+// console.log(systemMessage)
         // console.log(systemMessage)
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-4o",
@@ -39,8 +40,8 @@ ${dateTimeNow}
             ? JSON.parse(aiResponse.choices[0].message.content)
             : aiResponse.choices[0].message.content;
 
+        console.log(response)
         if (response.error) return { action_type: "error", status: "error", message: response.error, type: "CREATE_TICKET" }
-
         let newTicket = {...response, userId};
         // console.log(newTicket);
 
