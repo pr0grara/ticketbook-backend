@@ -100,7 +100,6 @@ app.use("/api/recurrence", recurrenceRoutes);
 app.listen(PORT, () => {
     console.log(`ticketbook listening on port ${PORT}`)
     console.log("Running Node.js version:", process.version);
-    console.log("🕒 Server time is:", new Date().toString());
 });
 
 require('./jobs/recurrenceSweep.js');
