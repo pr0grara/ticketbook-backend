@@ -21,6 +21,7 @@ const aiRoutes = require('./routes/ai');
 const errorRoutes = require('./routes/error');
 const interestsRoute = require('./routes/interests');
 const authRoutes = require('./routes/authRoutes');
+const recurrenceRoutes = require('./routes/recurrence');
 
 // const { scrapeLinkedIn } = require('./pupeteer.js')
 
@@ -94,8 +95,11 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/ai', aiRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/error", errorRoutes);
+app.use("/api/recurrence", recurrenceRoutes);
 
 app.listen(PORT, () => {
     console.log(`ticketbook listening on port ${PORT}`)
     console.log("Running Node.js version:", process.version);
 });
+
+// require('./jobs/recurrenceSweep.js');

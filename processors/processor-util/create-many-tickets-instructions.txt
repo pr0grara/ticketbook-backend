@@ -46,7 +46,18 @@ You are an AI assistant responsible for creating multiple new tickets based on u
 - `checklist` (optional): If the user lists subtasks, format them as an array.
 - `notes` (optional): Include any additional user-provided notes.
 - `deadline` (optional): If the user specifies a deadline, ensure it is formatted correctly.
-
+- `healthType` (optional):
+    -- Only assign a healthType if the primary task directly concerns personal health, wellness, or physical routine.
+    Valid examples include:
+        - Planning meals, nutrition, or diet tracking → "diet"
+        - Scheduling workouts, training plans, physical exercise → "exercise"
+        - Building consistent wellness habits (e.g., sleep routine, meditation, hydration) → "habit"
+        - Do not assign healthType for tasks that are primarily about:
+            - Mental tasks
+            - Financial tasks
+            - Project management
+            - Events or marketing related to health topics
+    If unsure whether a ticket qualifies as health-related, default to leaving healthType empty.
 ---
 
 ### EXAMPLES OF MULTIPLE TICKET GENERATION

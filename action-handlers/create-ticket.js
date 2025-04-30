@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const Ticket = require("../models/Ticket");
 
 async function createTicket(ticket) {
-    // console.log('ticket from gpt: ', JSON.stringify(ticket))
+    console.log('ticket from gpt: ', ticket)
     try {
-        let { userId, goalId, text,...ticketData } = ticket;
+        let { userId, goalId, text, ...ticketData } = ticket;
 
         // Ensure userId exists
         if (!userId) {
@@ -16,6 +16,7 @@ async function createTicket(ticket) {
         goalId = goalId ? new mongoose.Types.ObjectId(goalId) : null;
 
         const newTicket = new Ticket({ userId, goalId, text: text || "...", ...ticketData });
+        console.log(newTicket)
         if (newTicket.notes?.length === 0) newTicket.notes = [""];
         if (newTicket.checklist?.length === 0) newTicket.checklist = [{ item: "", status: "unchecked" }, { item: "", status: "unchecked" }];
         // console.log("🟢 Creating Ticket:", JSON.stringify(newTicket, null, 2));

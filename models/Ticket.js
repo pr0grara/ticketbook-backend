@@ -18,7 +18,8 @@ const TicketSchema = new mongoose.Schema({
     isQuickWin: { type: Boolean, default: false },
     isDeepFocus: { type: Boolean, default: false },
     isRecurring: { type: Boolean, default: false },
-    baselineManifest: { type: Object, default: {} }
+    baselineManifest: { type: Object, default: {} },
+    healthType: { type: String, enum: ["", "diet", "exercise", "habit"], default: "" }
 }, { timestamps: true });
 
 // Ensure no duplicate indexes
