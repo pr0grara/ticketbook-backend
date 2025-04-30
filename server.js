@@ -102,4 +102,4 @@ app.listen(PORT, () => {
     console.log("Running Node.js version:", process.version);
 });
 
-// require('./jobs/recurrenceSweep.js');
+require('./jobs/recurrenceSweep.js');
