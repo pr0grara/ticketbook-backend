@@ -6,12 +6,26 @@ const TicketModel = require('../models/Ticket');
 const RecurrenceDispatcher = require('../services/RecurrenceDispatcher');
 
 // Run daily at 1:00 AM server time
-cron.schedule('0 1 * * *', async () => {
-// cron.schedule('* * * * *', async () => {
+// cron.schedule('0 1 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log(`[RECURRENCE SWEEP] Triggered at: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`);
 
     try {
         const dispatchers = await RecurrenceDispatcherModel.find({ status: 'active' });
+
+        // Find all active ticket IDs (only once)
+        const allTicketIds = new Set(
+            (await TicketModel.find({}, { _id: 1 })).map(t => t._id.toString())
+        );
+
+        // Identify orphaned recurrence dispatchers
+        const orphanedDispatchers = dispatchers.filter(d => !allTicketIds.has(d.ticketId.toString()));
+
+        if (orphanedDispatchers.length > 0) {
+            const orphanIds = orphanedDispatchers.map(d => d._id);
+            await RecurrenceDispatcherModel.deleteMany({ _id: { $in: orphanIds } });
+            console.log(`🧹 Removed ${orphanIds.length} orphaned recurrence dispatchers.`);
+        }
 
         for (const rawDispatcher of dispatchers) {
             const dispatcher = new RecurrenceDispatcher(rawDispatcher);
