@@ -6,8 +6,8 @@ const TicketModel = require('../models/Ticket');
 const RecurrenceDispatcher = require('../services/RecurrenceDispatcher');
 
 // Run daily at 1:00 AM server time
-// cron.schedule('0 1 * * *', async () => {
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 1 * * *', async () => {
+// cron.schedule('* * * * *', async () => {
     console.log(`[RECURRENCE SWEEP] Triggered at: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`);
 
     try {
