@@ -1,7 +1,11 @@
 const { isToday, addDays, addWeeks, addMonths, differenceInCalendarDays } = require('date-fns');
+const { toZonedTime } = require('date-fns-tz');
+
+const TIMEZONE = 'America/Los_Angeles'
 
 class RecurrenceDispatcher {
     constructor(dispatcherData) {
+        this._id = dispatcherData._id;
         this.ticketId = dispatcherData.ticketId;
         this.repeatInterval = dispatcherData.repeatInterval; // 'daily', 'weekly', 'monthly', 'custom'
         this.startDate = new Date(dispatcherData.startDate);
@@ -17,9 +21,22 @@ class RecurrenceDispatcher {
     }
 
     shouldTriggerToday() {
-        if (!this.isActive()) return false;
+        // console.log("🧪 Checking recurrence:", {
+        //     status: this.status,
+        //     ticketId: this.ticketId,
+        //     startDate: this.startDate,
+        //     endDate: this.endDate,
+        //     lastGeneratedDate: this.lastGeneratedDate,
+        //     today: toZonedTime(new Date(), TIMEZONE),
+        //     interval: this.repeatInterval
+        // });
 
-        const today = new Date();
+        if (!this.isActive()) {
+            console.log("❌ Skipping: Not active");
+            return false;
+        }
+
+        const today = toZonedTime(new Date(), TIMEZONE);
 
         if (this.endDate && today > this.endDate) {
             return false;
@@ -46,19 +63,24 @@ class RecurrenceDispatcher {
     }
 
     _isNextDayDue(today) {
-        if (!this.lastGeneratedDate) return isToday(this.startDate);
-        return differenceInCalendarDays(today, this.lastGeneratedDate) >= 1;
+        const base = this.lastGeneratedDate || this.startDate;
+        const referenceDate = toZonedTime(base, TIMEZONE);
+        return differenceInCalendarDays(today, referenceDate) >= 1;
     }
 
     _isNextWeekDue(today) {
-        if (!this.lastGeneratedDate) return isToday(this.startDate);
-        return differenceInCalendarDays(today, this.lastGeneratedDate) >= 7;
+        const base = this.lastGeneratedDate || this.startDate;
+        const referenceDate = toZonedTime(base, TIMEZONE);
+        return differenceInCalendarDays(today, referenceDate) >= 7;
     }
 
     _isNextMonthDue(today) {
-        if (!this.lastGeneratedDate) return isToday(this.startDate);
-        const monthDiff = today.getMonth() - this.lastGeneratedDate.getMonth() +
-            (12 * (today.getFullYear() - this.lastGeneratedDate.getFullYear()));
+        const base = this.lastGeneratedDate || this.startDate;
+        const referenceDate = toZonedTime(base, TIMEZONE);
+
+        const monthDiff = today.getMonth() - referenceDate.getMonth() +
+            (12 * (today.getFullYear() - referenceDate.getFullYear()));
+
         return monthDiff >= 1;
     }
 
