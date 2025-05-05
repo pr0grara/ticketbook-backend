@@ -86,7 +86,7 @@ router.post('/add-recurrence', async (req, res) => {
 
         // Mark ticket as recurring
         await Tickets.findByIdAndUpdate(ticketId, {
-            $set: { isRecurring: true }
+            $set: { isRecurring: repeatInterval }
         });
 
         // Delete any other recurrence dispatchers for this ticket (except the one we just saved)
@@ -107,7 +107,7 @@ router.delete('/delete-recurrence', (req, res) => {
     RecurrenceDispatcherModel.findOneAndDelete({ticketId})
         .then(() => {
             return Tickets.findByIdAndUpdate(ticketId, {
-                $set: { isRecurring: false }
+                $set: { isRecurring: "" }
             });        
         })
         .then(() => res.status(200).send('Recurrence deleted!').end())
