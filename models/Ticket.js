@@ -17,12 +17,12 @@ const TicketSchema = new mongoose.Schema({
     doSoon: { type: Boolean, default: false },
     isQuickWin: { type: Boolean, default: false },
     isDeepFocus: { type: Boolean, default: false },
-    // isRecurring: { type: Boolean, default: false },
-    isRecurring: { type: String, default: "", enum: ["", "daily", "weekly", "monthly"] },
+    isRecurring: { type: String, enum: ["", "daily", "weekly", "monthly"], default: "" },
     baselineManifest: { type: Object, default: {} },
     healthType: { type: String, enum: ["", "diet", "exercise", "habit"], default: "" }
 }, { timestamps: true });
 
+// isRecurring: { type: Boolean, default: false },
 // Ensure no duplicate indexes
 TicketSchema.index({ title: 1, userId: 1 }, { unique: false });
 

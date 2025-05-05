@@ -1,5 +1,5 @@
-const RecurrenceDispatcher = require("../models/RecurrenceDispatcher");
-const Ticket = require("../models/Ticket");
+// const RecurrenceDispatcher = require("../models/RecurrenceDispatcher");
+// const Ticket = require("../models/Ticket");
 
 const numPicker = (boolean) => {
     var num;
@@ -29,26 +29,26 @@ const idGenerator = (length, onlyNumBoolean) => {
 const today = new Date();
 const oneYearFromNow = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
 
-const modifyRecurringTickets = async () => {
-    const dispatchers = await RecurrenceDispatcher.find({}).lean();
-    for (const dispatcher of dispatchers) {
-        await Ticket.findByIdAndUpdate(dispatcher.ticketId, {isRecurring: dispatcher.repeatInterval});
-    }
-};
+// const modifyRecurringTickets = async () => {
+//     const dispatchers = await RecurrenceDispatcher.find({}).lean();
+//     for (const dispatcher of dispatchers) {
+//         await Ticket.findByIdAndUpdate(dispatcher.ticketId, {isRecurring: dispatcher.repeatInterval});
+//     }
+// };
 
-const modifyAllTickets = async () => {
-    await Ticket.updateMany(
-        { isRecurring: { $type: "bool" } },
-        { $set: { isRecurring: "" } }
-    );
+// const modifyAllTickets = async () => {
+//     await Ticket.updateMany(
+//         { isRecurring: { $type: "bool" } },
+//         { $set: { isRecurring: "" } }
+//     );
 
-    // await Ticket.updateMany(
-    //     { isRecurring: false },
-    //     { $set: { isRecurring: "" } }
-    // )   
-    //     .then(res => console.log(res))
-    //     .catch(err => console.log(err));
-};
+//     // await Ticket.updateMany(
+//     //     { isRecurring: false },
+//     //     { $set: { isRecurring: "" } }
+//     // )   
+//     //     .then(res => console.log(res))
+//     //     .catch(err => console.log(err));
+// };
 // 
 // modifyAllTickets()
 
