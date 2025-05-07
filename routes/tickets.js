@@ -128,9 +128,9 @@ router.patch("/:ticketId/updatePriority", async (req, res) => {
 router.patch("/update/:ticketId", async (req, res) => {
     try {
         const { ticketId } = req.params;
-        const { text, status, priority, deadline, title, notes, checklist, doToday, doSoon, isQuickWin, isDeepFocus } = req.body.ticket;
+        const { text, status, priority, deadline, title, notes, checklist, doToday, doSoon, isQuickWin, isDeepFocus, setToday, setSoon } = req.body.ticket;
         // console.log(ticketId, JSON.stringify(req.body))
-        const updateFields = {text, status, priority, deadline, title, notes, checklist, doToday, doSoon, isQuickWin, isDeepFocus}
+        const updateFields = {text, status, priority, deadline, title, notes, checklist, doToday, doSoon, isQuickWin, isDeepFocus, setToday, setSoon}
         console.log(ticketId, updateFields);
         const updatedTicket = await Ticket.findByIdAndUpdate(ticketId, updateFields, { new: true });
 

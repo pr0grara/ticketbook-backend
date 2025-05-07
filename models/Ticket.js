@@ -18,6 +18,8 @@ const TicketSchema = new mongoose.Schema({
     isQuickWin: { type: Boolean, default: false },
     isDeepFocus: { type: Boolean, default: false },
     isRecurring: { type: String, enum: ["", "daily", "weekly", "monthly"], default: "" },
+    setToday: { type: Date },
+    setSoon: { type: Date },
     baselineManifest: { type: Object, default: {} },
     healthType: { type: String, enum: ["", "diet", "exercise", "habit"], default: "" }
 }, { timestamps: true });
