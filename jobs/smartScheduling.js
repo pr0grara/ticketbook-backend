@@ -1,21 +1,13 @@
 const cron = require('node-cron');
 const Ticket = require('../models/Ticket');
 const { toZonedTime } = require('date-fns-tz');
-const { isSameDay } = require('date-fns');
+const { isSameDay, isBefore } = require('date-fns');
 
 const TIMEZONE = 'America/Los_Angeles';
 
-// Helper to check same local day
-function isSameLocalDay(a, b) {
-    const zonedA = toZonedTime(a, TIMEZONE);
-    const zonedB = toZonedTime(b, TIMEZONE);
-    return isSameDay(zonedA, zonedB);
-}
-
 cron.schedule('0 2 * * *', async () => {
-    const now = new Date();
-    const localNow = toZonedTime(now, TIMEZONE);
-    console.log(`🕑 [Smart Scheduling] Sweep running at ${localNow.toString()}`);
+    const now = toZonedTime(new Date(), TIMEZONE);
+    console.log(`Running smart scheduling sweep at ${now.toLocaleString("en-US", { timeZone: TIMEZONE })}`);
 
     try {
         const tickets = await Ticket.find({
@@ -25,27 +17,24 @@ cron.schedule('0 2 * * *', async () => {
             ]
         });
 
-        console.log(`🔍 Found ${tickets.length} tickets with setToday/setSoon...`);
+        console.log(`Found ${tickets.length} ticket(s) with scheduling info`);
 
         for (const ticket of tickets) {
-            let update = {};
-            const { _id, setToday, setSoon } = ticket;
+            const update = {};
 
-            if (!ticket.doToday && setToday) {
-                const same = isSameLocalDay(setToday, localNow);
-                update.doToday = same;
-            }
+            const setToday = ticket.setToday ? toZonedTime(new Date(ticket.setToday), TIMEZONE) : null;
+            const setSoon = ticket.setSoon ? toZonedTime(new Date(ticket.setSoon), TIMEZONE) : null;
 
-            if (!ticket.doSoon && setSoon) {
-                const same = isSameLocalDay(setSoon, localNow);
-                update.doSoon = same;
-            }
+            if (!ticket.doToday) update.doToday = setToday && (isSameDay(setToday, now) || isBefore(setToday, now));
+            if (!ticket.doSoon) update.doSoon = setSoon && (isSameDay(setSoon, now) || isBefore(setSoon, now));
 
-            await Ticket.findByIdAndUpdate(_id, { $set: update });
+            console.log(`Ticket: ${ticket.title} | doToday: ${update.doToday} | doSoon: ${update.doSoon}`);
+
+            await Ticket.findByIdAndUpdate(ticket._id, { $set: update });
         }
 
-        console.log(`✅ Smart scheduling completed for ${tickets.length} tickets`);
+        console.log(`Smart scheduling complete`);
     } catch (err) {
-        console.error('❌ Smart scheduling error:', err);
+        console.error('Smart scheduling error:', err);
     }
 }, { timezone: TIMEZONE });
