@@ -25,6 +25,7 @@
     "express-session": "^1.18.1",
     "googleapis": "^105.0.0",
     "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.48",
     "mongoose": "^6.1.4",
     "node-cron": "^3.0.3",
     "openai": "^4.25.0",
@@ -33,10 +34,10 @@
     "sass": "^1.83.4"
   },
   "devDependencies": {
+    "concurrently": "^6.5.1",
+    "nodemon": "^2.0.15",
     "puppeteer": "^24.4.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "concurrently": "^6.5.1",
-    "nodemon": "^2.0.15"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
 }

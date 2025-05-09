@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Ticket = require("../models/Ticket");
+const Behavior = require("../models/Behavior");
 
 async function createTicket(ticket) {
     console.log('ticket from gpt: ', ticket)
@@ -23,6 +24,17 @@ async function createTicket(ticket) {
         console.log("🟢 Creating Ticket");
 
         const savedTicket = await newTicket.save();
+        
+        const behavior = new Behavior({
+            userId,
+            type: "TICKET",
+            ticketType: "CREATE",
+            ticketId: savedTicket._id,
+            title: savedTicket.title
+        })
+        behavior.save()
+            .then(() => console.log('new ticket behavior logged'))
+            .catch(err => console.log(err));
 
         // console.log("✅ Ticket Saved:", JSON.stringify(savedTicket, null, 2));
         console.log("✅ Ticket Saved");

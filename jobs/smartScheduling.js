@@ -1,13 +1,13 @@
 const cron = require('node-cron');
 const Ticket = require('../models/Ticket');
-const { toZonedTime } = require('date-fns-tz');
 const { isSameDay, isBefore } = require('date-fns');
+const moment = require('moment-timezone');
 
 const TIMEZONE = 'America/Los_Angeles';
 
 cron.schedule('0 2 * * *', async () => {
-    const now = toZonedTime(new Date(), TIMEZONE);
-    console.log(`Running smart scheduling sweep at ${now.toLocaleString("en-US", { timeZone: TIMEZONE })}`);
+    const zonedNow = moment(new Date()).tz('America/Los_Angeles').format()
+    console.log(`Running smart scheduling sweep at ${zonedNow}`);
 
     try {
         const tickets = await Ticket.find({
@@ -20,13 +20,13 @@ cron.schedule('0 2 * * *', async () => {
         console.log(`Found ${tickets.length} ticket(s) with scheduling info`);
 
         for (const ticket of tickets) {
+            const zonedToday = moment(ticket.setToday).tz('America/Los_Angeles').format();
+            const zonedSoon = moment(ticket.setSoon).tz('America/Los_Angeles').format();
+
             const update = {};
 
-            const setToday = ticket.setToday ? toZonedTime(new Date(ticket.setToday), TIMEZONE) : null;
-            const setSoon = ticket.setSoon ? toZonedTime(new Date(ticket.setSoon), TIMEZONE) : null;
-
-            if (!ticket.doToday) update.doToday = setToday && (isSameDay(setToday, now) || isBefore(setToday, now));
-            if (!ticket.doSoon) update.doSoon = setSoon && (isSameDay(setSoon, now) || isBefore(setSoon, now));
+            if (!ticket.doToday && ticket.setToday) update.doToday = (isSameDay(zonedToday, zonedNow) || isBefore(zonedToday, zonedNow));
+            if (!ticket.doSoon && ticket.setSoon) update.doSoon = (isSameDay(zonedSoon, zonedNow) || isBefore(zonedNow, zonedNow));
 
             console.log(`Ticket: ${ticket.title} | doToday: ${update.doToday} | doSoon: ${update.doSoon}`);
 

@@ -6,24 +6,7 @@ const Ticket = require('../models/Ticket');
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
 const RecurrenceDispatcher = require('../models/RecurrenceDispatcher');
-
-// const User = require('../models/User');
-// const updateAllTickets = async () => {
-//     const users = await User.find({});
-//     console.log(users)
-//     for (const user of users) {
-//         const tickets = await Ticket.find({userId: user._id});
-//         // console.log(tickets)
-        
-//         for (let i = 0; i < (await tickets).length; i++) {
-//             tickets[i].order = i + 1
-//             await tickets[i].save();
-//         }
-//         console.log(`✅ Updated orders for user ${user.firstname}`);
-//     }
-// }
-
-// //updateAllTickets()
+const Behavior = require('../models/Behavior');
 
 router.get('/', (req, res) => {
     res.status(200).send('ticket route home').end();
@@ -138,6 +121,22 @@ router.patch("/update/:ticketId", async (req, res) => {
             return res.status(404).json({ message: "Ticket not found or improperly updated" });
         }
 
+        let ticketType = "EDIT"
+        if (setSoon || setToday) ticketType = "ADD_SCHEDULING";
+        if (status === "done") ticketType = "CLOSE";
+
+        const behavior = new Behavior({
+            userId: updatedTicket.userId,
+            type: "TICKET",
+            ticketType,
+            editActions: updateFields.status === 'done' ? {} : updateFields,
+            ticketId: updatedTicket._id,
+            title: updatedTicket.title
+        })
+        behavior.save()
+            .then(() => console.log('ticket_edit behavior saved'))
+            .catch(err => console.log(err));
+
         res.status(200).json(updatedTicket);
     } catch (error) {
         console.error("Error updating ticket status:", error);
@@ -204,7 +203,19 @@ router.delete('/delete/:ticketId', (req, res) => {
     let { ticketId } = req.params;
 
     Ticket.findOneAndDelete({ _id: ticketId })
-        .then(data => res.status(200).send('deleted').end())
+        .then(data => {
+            res.status(200).send('deleted').end()
+            const behavior = new Behavior({
+                userId: data.userId,
+                type: "TICKET",
+                ticketType: "DELETE",
+                ticketId: data._id,
+                title: data.title
+            })
+            behavior.save()
+                .then(res => console.log("ticket_delete behavior saved"))
+                .catch(err => console.log(err));
+        })
         .catch(err => res.status(400).send(`error deleting: ${err}`).end());
 });
 

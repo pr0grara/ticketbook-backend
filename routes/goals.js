@@ -7,6 +7,7 @@ const Ticket = require('../models/Ticket');
 
 const { idGenerator, oneYearFromNow } = require('../util/util');
 const User = require('../models/User');
+const Behavior = require('../models/Behavior');
 
 router.get('/', (req, res) => {
     res.status(200).send('goal route home').end();
@@ -76,6 +77,17 @@ router.delete('/delete/:goalId', async (req, res) => {
         if (!deletedGoal) {
             return res.status(404).send('Goal not found').end();
         }
+
+        const behavior = new Behavior({
+            userId: deletedGoal.userId,
+            type: "GOAL",
+            goalType: "DELETE",
+            goalId: goalId,
+            title: deletedGoal.title
+        })
+        behavior.save()
+            .then(res => console.log("goal_delete behavior saved"))
+            .catch(err => console.log(err));
 
         res.status(200).send({
             status: "deleted",

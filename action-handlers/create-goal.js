@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const Goal = require("../models/Goal");
+const Behavior = require('../models/Behavior');
+const { toZonedTime } = require('date-fns-tz');
+const TIMEZONE = 'America/Los_Angeles';
 
 async function createGoal(goal, createType) {
     try {
@@ -23,6 +26,17 @@ async function createGoal(goal, createType) {
 
         const newGoal = new Goal(goalData);
         const savedGoal = await newGoal.save();
+
+        const behavior = new Behavior({
+            userId,
+            type: "GOAL",
+            ticketType: "CREATE",
+            goalId: savedGoal._id,
+            title
+        })
+        behavior.save()
+            .then(() => console.log('new goal behavior logged'))
+            .catch(err => console.log(err));
 
         console.log("✅ Goal Saved:", JSON.stringify(savedGoal, null, 2));
 
