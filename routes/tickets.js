@@ -121,17 +121,20 @@ router.patch("/update/:ticketId", async (req, res) => {
             return res.status(404).json({ message: "Ticket not found or improperly updated" });
         }
 
+        const recurrenceType = updatedTicket.isRecurring;
+
         let ticketType = "EDIT"
         if (setSoon || setToday) ticketType = "ADD_SCHEDULING";
-        if (status === "done") ticketType = "CLOSE";
+        if (status === "done") ticketType = recurrenceType ? "CLOSE_RECURRING" : "CLOSE";
 
         const behavior = new Behavior({
             userId: updatedTicket.userId,
             type: "TICKET",
             ticketType,
-            editActions: updateFields.status === 'done' ? {} : updateFields,
+            editActions: status === 'done' ? {} : updateFields,
             ticketId: updatedTicket._id,
-            title: updatedTicket.title
+            title: updatedTicket.title,
+            recurrenceType
         })
         behavior.save()
             .then(() => console.log('ticket_edit behavior saved'))
