@@ -1,18 +1,25 @@
+const fs = require('fs');
+const path = require('path');
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 const Behavior = require('../models/Behavior');
+const DailySummary = require('../models/DailySummary');
+const { openai } = require("../util/ai_util");
+const behaviorContextPath = path.join(__dirname, "../util/ai_instructions/behavior.txt")
+const behaviorSystemMessage = fs.readFileSync(behaviorContextPath, "utf-8");
 // const summarizeBehavior = require('../services/summarizeBehavior'); // <-- your AI summary function
 
 const TIMEZONE = 'America/Los_Angeles';
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 3 * * *', async () => {
     const now = moment().tz(TIMEZONE);
-    const yesterdayStart = now.clone().subtract(0, 'day').startOf('day').toDate();
-    const yesterdayEnd = now.clone().subtract(0, 'day').endOf('day').toDate();
-
+    const yesterdayStart = now.clone().subtract(1, 'day').startOf('day').toDate();
+    const yesterdayEnd = now.clone().subtract(1, 'day').endOf('day').toDate();
     console.log(`🔍 Running behavior summary sweep for ${yesterdayStart.toISOString()} - ${yesterdayEnd.toISOString()}`);
-
+    
     try {
+        const date = moment(yesterdayStart).format('YYYY-MM-DD');
+        console.log(date);
         const behaviors = await Behavior.find({
             createdAt: { $gte: yesterdayStart, $lte: yesterdayEnd }
         });
@@ -28,7 +35,7 @@ cron.schedule('* * * * *', async () => {
             return acc;
         }, {});
 
-        console.log(userBehaviorsMap)
+        // console.log(userBehaviorsMap)
 
         for (const [userId, userBehaviors] of Object.entries(userBehaviorsMap)) {
             console.log(`📋 Summarizing behaviors for user: ${userId} (${userBehaviors.length} entries)`);
@@ -42,13 +49,38 @@ cron.schedule('* * * * *', async () => {
                 notes: b.notes
             }));
 
-            console.log(summaryInput);
+            // console.log(summaryInput);
 
             // 👇 Replace this with your real AI summary function
-            const aiSummary = await fakeAISummary(summaryInput);
+            const aiSummary = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [
+                    { role: "system", content: behaviorSystemMessage },
+                    { role: "user", content: JSON.stringify(summaryInput) }
+                ],
+                response_format: { type: "json_object" }
+            });
+
+            if (!aiSummary.choices || !aiSummary.choices[0].message) {
+                throw new Error("Invalid AI response structure.");
+            }
+
+            const summary = typeof aiSummary.choices[0].message.content === "string"
+                ? JSON.parse(aiSummary.choices[0].message.content)
+                : aiSummary.choices[0].message.content;
 
             // You can log, store, or emit this summary as needed
-            console.log(`✅ Summary for ${userId}:\n${aiSummary}\n`);
+            // console.log(`✅ Summary for ${userId}:\n${summary}\n`);
+
+            const newSummary = new DailySummary({
+                userId,
+                summary,
+                date
+            })
+
+            newSummary.save()
+                .then(() => console.log(`Daily Summary for ${userId} saved`))
+                .catch(e => console.log("error saving daily summary: ", e));
         }
 
         console.log('🎉 Behavior summarization complete');
@@ -56,8 +88,3 @@ cron.schedule('* * * * *', async () => {
         console.error('❌ Error during behavior summary sweep:', err);
     }
 }, { timezone: TIMEZONE });
-
-// Placeholder AI summary function
-async function fakeAISummary(data) {
-    return `User did ${data.length} things. Example: ${JSON.stringify(data[0])}`;
-}

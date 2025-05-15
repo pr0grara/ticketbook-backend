@@ -97,11 +97,16 @@ app.use("/api/auth", authRoutes);
 app.use("/api/error", errorRoutes);
 app.use("/api/recurrence", recurrenceRoutes);
 
+try {
+    require('./jobs/recurrenceSweep.js');
+    require('./jobs/smartScheduling.js');
+    require('./jobs/behaviorSweep.js');
+    console.log('Behavior cron loaded')
+} catch (e) {
+    console.log("cron scheduling failed: ", e)
+}
+
 app.listen(PORT, () => {
     console.log(`ticketbook listening on port ${PORT}`)
     console.log("Running Node.js version:", process.version);
 });
-
-require('./jobs/recurrenceSweep.js');
-require('./jobs/smartScheduling.js');
-// require('./jobs/behaviorSweep.js');
