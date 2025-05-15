@@ -22,6 +22,7 @@ const errorRoutes = require('./routes/error');
 const interestsRoute = require('./routes/interests');
 const authRoutes = require('./routes/authRoutes');
 const recurrenceRoutes = require('./routes/recurrence');
+const behaviorsRoutes = require('./routes/behaviors.js');
 
 // const { scrapeLinkedIn } = require('./pupeteer.js')
 
@@ -96,6 +97,7 @@ app.use('/api/ai', aiRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/error", errorRoutes);
 app.use("/api/recurrence", recurrenceRoutes);
+app.use("/api/behaviors", behaviorsRoutes);
 
 try {
     require('./jobs/recurrenceSweep.js');
