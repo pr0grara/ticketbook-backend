@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const Behavior = require('../models/Behavior');
 const DailySummary = require('../models/DailySummary');
 const { openai } = require("../util/ai_util");
+const Ticket = require('../models/Ticket');
 const behaviorContextPath = path.join(__dirname, "../util/ai_instructions/behavior.txt")
 const behaviorSystemMessage = fs.readFileSync(behaviorContextPath, "utf-8");
 // const summarizeBehavior = require('../services/summarizeBehavior'); // <-- your AI summary function
@@ -36,11 +37,16 @@ cron.schedule('0 3 * * *', async () => {
         }, {});
 
         // console.log(userBehaviorsMap)
+        const summaryInput = {
+            yesterday: {},
+            today: {},
+            upcoming: {}
+        }
 
         for (const [userId, userBehaviors] of Object.entries(userBehaviorsMap)) {
             console.log(`📋 Summarizing behaviors for user: ${userId} (${userBehaviors.length} entries)`);
 
-            const summaryInput = userBehaviors.map(b => ({
+            summaryInput["yesterday"] = userBehaviors.map(b => ({
                 type: b.type,
                 action: b.ticketType || b.goalType,
                 ticketId: b.ticketId,
@@ -48,8 +54,24 @@ cron.schedule('0 3 * * *', async () => {
                 title: b.title,
                 notes: b.notes
             }));
+            const todaysTickets = await Ticket.find({userId, doToday: true, status: "pending"})
+            summaryInput["today"] = todaysTickets.map(t => ({
+                title: t.title,
+                text: t.text,
+                isQuickWin: t.isQuickWin,
+                isDeepFocus: t.isDeepFocus,
+                isRecurring: t.isRecurring
+            }));
+            const upcomingTickets = await Ticket.find({ userId, doSoon: true, status: "pending" })
+            summaryInput["upcoming"] = upcomingTickets.map(t => ({
+                title: t.title,
+                text: t.text,
+                isQuickWin: t.isQuickWin,
+                isDeepFocus: t.isDeepFocus,
+                isRecurring: t.isRecurring
+            }));
 
-            // console.log(summaryInput);
+            // return console.log(summaryInput);
 
             const aiSummary = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -69,7 +91,7 @@ cron.schedule('0 3 * * *', async () => {
                 : aiSummary.choices[0].message.content;
 
             // You can log, store, or emit this summary as needed
-            // console.log(`✅ Summary for ${userId}:\n${summary}\n`);
+            // console.log(`✅ Summary for ${userId}:\n${JSON.stringify(summary)}\n`);
 
             const newSummary = new DailySummary({
                 userId,
