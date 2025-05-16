@@ -18,7 +18,7 @@ cron.schedule('0 3 * * *', async () => {
     console.log(`🔍 Running behavior summary sweep for ${yesterdayStart.toISOString()} - ${yesterdayEnd.toISOString()}`);
     
     try {
-        const date = moment(yesterdayStart).format('YYYY-MM-DD');
+        const date = moment().tz('America/Los_Angeles').subtract(1, 'day').startOf('day').toDate();
         console.log(date);
         const behaviors = await Behavior.find({
             createdAt: { $gte: yesterdayStart, $lte: yesterdayEnd }
@@ -51,7 +51,6 @@ cron.schedule('0 3 * * *', async () => {
 
             // console.log(summaryInput);
 
-            // 👇 Replace this with your real AI summary function
             const aiSummary = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [

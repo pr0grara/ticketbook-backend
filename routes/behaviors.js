@@ -22,14 +22,18 @@ router.get('/fetch-for-user/:userId', async (req, res) => {
         const { userId } = req.params;
         const behaviors = await Behavior.find({ userId });
         
-        const startOfYesterday = moment().tz('utc').subtract(1, 'day').startOf('day').toDate();
-        const endOfYesterday = moment().tz('utc').subtract(1, 'day').endOf('day').toDate();
+        // const startOfYesterday = moment().tz('utc').subtract(2, 'day').startOf('day').toDate();
+        // const endOfYesterday = moment().tz('utc').subtract(2, 'day').endOf('day').toDate();
         // console.log(startOfYesterday, endOfYesterday)
+
+        const targetDate = moment().tz('America/Los_Angeles').subtract(1, 'day').startOf('day').toDate();
+        // console.log(targetDate)
         const dailySummary = await DailySummary.findOne({
             userId,
-            date: { $gte: startOfYesterday, $lte: endOfYesterday }
+            date: targetDate
+            // date: { $gte: startOfYesterday, $lte: endOfYesterday }
         });
-        // console.log(dailySummary.summary)
+        // console.log(dailySummary)
         res.status(200).json({behaviors, dailySummary});
     } catch (e) {
         console.error('Error fetching behaviors:', e);
