@@ -6,13 +6,14 @@ const Behavior = require('../models/Behavior');
 const DailySummary = require('../models/DailySummary');
 const { openai } = require("../util/ai_util");
 const Ticket = require('../models/Ticket');
+const User = require('../models/User');
 const behaviorContextPath = path.join(__dirname, "../util/ai_instructions/behavior.txt")
 const behaviorSystemMessage = fs.readFileSync(behaviorContextPath, "utf-8");
 // const summarizeBehavior = require('../services/summarizeBehavior'); // <-- your AI summary function
 
 const TIMEZONE = 'America/Los_Angeles';
 
-cron.schedule('0 3 * * *', async () => {
+cron.schedule('1 0 * * *', async () => { //run at 12:01AM
     const now = moment().tz(TIMEZONE);
     const yesterdayStart = now.clone().subtract(1, 'day').startOf('day').toDate();
     const yesterdayEnd = now.clone().subtract(1, 'day').endOf('day').toDate();
@@ -71,7 +72,7 @@ cron.schedule('0 3 * * *', async () => {
                 isRecurring: t.isRecurring
             }));
 
-            // return console.log(summaryInput);
+            console.log(summaryInput.yesterday);
 
             const aiSummary = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -91,7 +92,7 @@ cron.schedule('0 3 * * *', async () => {
                 : aiSummary.choices[0].message.content;
 
             // You can log, store, or emit this summary as needed
-            // console.log(`✅ Summary for ${userId}:\n${JSON.stringify(summary)}\n`);
+            console.log(`✅ Summary for ${userId}:\n${JSON.stringify(summary)}\n`);
 
             const newSummary = new DailySummary({
                 userId,
@@ -100,7 +101,10 @@ cron.schedule('0 3 * * *', async () => {
             })
 
             newSummary.save()
-                .then(() => console.log(`Daily Summary for ${userId} saved`))
+                .then(() => {
+                    console.log(`Daily Summary for ${userId} saved`)
+                    User.findByIdAndUpdate(userId, {viewedSummary: false});
+                })
                 .catch(e => console.log("error saving daily summary: ", e));
         }
 

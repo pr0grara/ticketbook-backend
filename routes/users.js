@@ -80,4 +80,12 @@ router.post("/feedback", async (req, res) => {
         .catch(err => res.status(500).json(err).end());
 })
 
+router.post("/set-viewed-summary", async (req, res) => {
+    const userId = req.body.userId;
+    User.findByIdAndUpdate(userId, {viewedSummary: true})
+        .then(() => res.status(200).send('user viewed summary status changed'))
+        .catch(() => res.status(500).send("error changing viewed summary status"))
+
+})
+
 module.exports = router;

@@ -33,8 +33,10 @@ router.get('/fetch-for-user/:userId', async (req, res) => {
             date: targetDate
             // date: { $gte: startOfYesterday, $lte: endOfYesterday }
         });
+
+        const user = await User.findById(userId)
         // console.log(dailySummary)
-        res.status(200).json({behaviors, dailySummary});
+        res.status(200).json({behaviors, dailySummary, viewedSummary: user.viewedSummary});
     } catch (e) {
         console.error('Error fetching behaviors:', e);
         res.status(500).json({ error: 'Failed to fetch behaviors' });
