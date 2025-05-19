@@ -13,7 +13,7 @@ const behaviorSystemMessage = fs.readFileSync(behaviorContextPath, "utf-8");
 
 const TIMEZONE = 'America/Los_Angeles';
 
-cron.schedule('1 0 * * *', async () => { //run at 12:01AM
+cron.schedule('0 3 * * *', async () => { //run at 3:00 AM
     const now = moment().tz(TIMEZONE);
     const yesterdayStart = now.clone().subtract(1, 'day').startOf('day').toDate();
     const yesterdayEnd = now.clone().subtract(1, 'day').endOf('day').toDate();
@@ -72,7 +72,7 @@ cron.schedule('1 0 * * *', async () => { //run at 12:01AM
                 isRecurring: t.isRecurring
             }));
 
-            console.log(summaryInput.yesterday);
+            // console.log(summaryInput.yesterday);
 
             const aiSummary = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -92,7 +92,7 @@ cron.schedule('1 0 * * *', async () => { //run at 12:01AM
                 : aiSummary.choices[0].message.content;
 
             // You can log, store, or emit this summary as needed
-            console.log(`✅ Summary for ${userId}:\n${JSON.stringify(summary)}\n`);
+            // console.log(`✅ Summary for ${userId}:\n${JSON.stringify(summary)}\n`);
 
             const newSummary = new DailySummary({
                 userId,
@@ -103,7 +103,9 @@ cron.schedule('1 0 * * *', async () => { //run at 12:01AM
             newSummary.save()
                 .then(() => {
                     console.log(`Daily Summary for ${userId} saved`)
-                    User.findByIdAndUpdate(userId, {viewedSummary: false});
+                    User.findByIdAndUpdate(userId, {viewedSummary: false})
+                        .then(()=>console.log('set viewedSummary to false'))
+                        .catch(e => console.log(e))
                 })
                 .catch(e => console.log("error saving daily summary: ", e));
         }
